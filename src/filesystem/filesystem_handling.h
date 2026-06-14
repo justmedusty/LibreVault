@@ -10,12 +10,15 @@
 enum class FileObfuscation {
     NO_OBFUSCATION,
 
+
 };
 struct FilesystemHandling {
     FilesystemHandling(
         const std::string &path,
         const std::string &extension
         );
+
     ~FilesystemHandling();
-}
+
+};
 #endif //LIBREVAULT_FILESYSTEM_HANDLING_H
