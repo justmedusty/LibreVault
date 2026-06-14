@@ -34,9 +34,8 @@ struct FilesystemHandling {
         obfuscation = obfuscationMethod;
     }
 
-    ~FilesystemHandling() {
+    ~FilesystemHandling() =default;
 
-    }
 
 };
 #endif //LIBREVAULT_FILESYSTEM_HANDLING_H
