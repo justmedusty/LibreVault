@@ -141,6 +141,17 @@ void delete_entry(std::string &key, ConfigRepresentation &config) {
             vault_file_path << ".old" << std::endl;
 }
 
-std::int32_t create_vault(std::filesystem::path &vault_path) {
+void create_vault(std::filesystem::path &vault_path) {
+    if (std::filesystem::exists(vault_path)) {
+        std::cerr << vault_path << " already exists!" << std::endl;
+        exit(1);
+    }
+    std::ofstream vault(vault_path);
+    if (!vault.is_open()) {
+        std::cerr << "Could not open vault file: " << vault_path << std::endl;
+        exit(1);
+    }
 
+    vault << "#LibreVault vault file" << std::endl;
+    vault.close();
 }
