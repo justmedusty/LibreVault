@@ -26,16 +26,15 @@ static struct option long_options[] = {
 struct ConfigRepresentation {
     void parse_command_line_args(int argc, char *argv[]);
 
-    ConfigRepresentation(FileObfuscation obfuscation, EncryptionMode encryption_mode, FILE *vault_file)
+    ConfigRepresentation(FileObfuscation obfuscation, EncryptionMode encryption_mode, std::string &vault_path)
         : obfuscation(obfuscation),
-          encryption_mode(encryption_mode)
-          , vault_file(vault_file) {
+          encryption_mode(encryption_mode),
+          vault_file_path(std::move(vault_path)) {
     }
 
     FileObfuscation obfuscation;
     EncryptionMode encryption_mode;
-
-    FILE *vault_file;
+    std::string vault_file_path;
 
 private:
     void parse_encryption_mode_args(int numFlag, char *argTuple[]);
@@ -71,7 +70,6 @@ enum class EncryptionMode {
     BLOWFISH_THEN_AES_256_GCM,
     CAMELLIA_256_THEN_AES_256_GCM
 };
-
 
 
 #endif //LIBREVAULT_CONFIG_REPRESENTATION_H
