@@ -4,16 +4,14 @@
 
 #include "config_representation.h"
 
-void ConfigRepresentation::parseCommandLineArgs(int argc, char *argv[]) {
-    int i = 0;
 
-    while (i < argc) {
-
-    }
-
-
+void ConfigRepresentation::parse_command_line_args(int argc, char *argv[]) {
 
 }
 
-void ConfigRepresentation::parseEncryptionModeArgs(int numFlag, char *argTuple[]) {
+void ConfigRepresentation::parse_encryption_mode_args(int argc, char *argTuple[]) {
+
+}
+
+void ConfigRepresentation::parse_file_obfuscation_mode_args(int numFlag, char *argTuple[]) {
 }

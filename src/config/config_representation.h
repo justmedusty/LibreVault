@@ -5,7 +5,7 @@
 #ifndef LIBREVAULT_CONFIG_REPRESENTATION_H
 #define LIBREVAULT_CONFIG_REPRESENTATION_H
 #include <filesystem>
-
+#include <getopt.h>
 
 enum class FileObfuscation;
 enum class EncryptionMode;
@@ -13,8 +13,18 @@ enum class EncryptionMode;
 #define ENCRYPTION_MODE_CONFIG_KEY "encryption_mode"
 #define FILE_OBFUSCATION_CONFIG_KEY "filesystem_obfuscation"
 
+static struct option long_options[] = {
+    {"add_entry", required_argument, nullptr, 'a'},
+    {"fetch_entry", required_argument, nullptr, 'f'},
+    {"vault-file", required_argument, nullptr, 'v'},
+    {"keyfile", optional_argument, nullptr, 'k'},
+    {"verbose", no_argument, nullptr, 'v'},
+    {"help", no_argument, nullptr, 'h'},
+    {nullptr, 0, nullptr, 0}
+};
+
 struct ConfigRepresentation {
-    void parseCommandLineArgs(int argc, char *argv[]);
+    void parse_command_line_args(int argc, char *argv[]);
 
     ConfigRepresentation(FileObfuscation obfuscation, EncryptionMode encryption_mode, FILE *vault_file)
         : obfuscation(obfuscation),
@@ -24,11 +34,13 @@ struct ConfigRepresentation {
 
     FileObfuscation obfuscation;
     EncryptionMode encryption_mode;
+
     FILE *vault_file;
 
 private:
-    void parseEncryptionModeArgs(int numFlag,char *argTuple[]);
-    void parseFileObfuscationArgs(int numFlag,char *argTuple[]);
+    void parse_encryption_mode_args(int numFlag, char *argTuple[]);
+
+    void parse_file_obfuscation_mode_args(int numFlag, char *argTuple[]);
 };
 
 #define FILE_NO_OBFUSCATION_CONFIG_KEY "no_obfuscation"
@@ -59,6 +71,7 @@ enum class EncryptionMode {
     BLOWFISH_THEN_AES_256_GCM,
     CAMELLIA_256_THEN_AES_256_GCM
 };
+
 
 
 #endif //LIBREVAULT_CONFIG_REPRESENTATION_H

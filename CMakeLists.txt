@@ -11,6 +11,9 @@ add_executable(LibreVault src/main.cpp
         src/crypt/encryption.cpp
         src/crypt/encryption.h
         src/crypt/aes.cpp
-        src/crypt/aes.h)
+        src/crypt/aes.h
+        src/filesystem/vault_handling.cpp
+        src/filesystem/vault_handling.h)
 
 target_link_libraries(LibreVault PRIVATE OpenSSL::Crypto)
+target_include_directories(LibreVault PRIVATE ${CMAKE_SOURCE_DIR}/src)
