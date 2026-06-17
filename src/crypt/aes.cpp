@@ -10,14 +10,15 @@ void handle_openssl_errors(std::string *where) {
 }
 
 
-bool aes_256_gcm_encrypt(const unsigned char *plaintext, int plaintext_len, const unsigned char *key, const unsigned char *iv, unsigned char *ciphertext, int &ciphertext_len) {
+bool aes_256_cbc_encrypt(const unsigned char *plaintext, int plaintext_len, const unsigned char *key,
+                         const unsigned char *iv, unsigned char *ciphertext, int &ciphertext_len) {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
         std::cerr << "Failed to create EVP_CIPHER_CTX" << std::endl;
         return false;
     }
 
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, key, iv) != 1) {
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key, iv) != 1) {
         std::cerr << "Failed to initialize encryption" << std::endl;
         EVP_CIPHER_CTX_free(ctx);
         return false;
@@ -33,14 +34,15 @@ bool aes_256_gcm_encrypt(const unsigned char *plaintext, int plaintext_len, cons
     return true;
 }
 
-bool aes_256_gcm_decrypt(const unsigned char *ciphertext, int ciphertext_len, const unsigned char *key, const unsigned char *iv, unsigned char *plaintext, int &plaintext_len) {
+bool aes_256_cbc_decrypt(const unsigned char *ciphertext, int ciphertext_len, const unsigned char *key,
+                         const unsigned char *iv, unsigned char *plaintext, int &plaintext_len) {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
         std::cerr << "Failed to create EVP_CIPHER_CTX" << std::endl;
         return false;
     }
 
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, key, iv) != 1) {
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key, iv) != 1) {
         std::cerr << "Failed to initialize decryption" << std::endl;
         EVP_CIPHER_CTX_free(ctx);
         return false;
