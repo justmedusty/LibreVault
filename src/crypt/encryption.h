@@ -13,7 +13,7 @@
 #include "openssl/camellia.h"
 #include "config/config_representation.h"
 
-namespace crypt {
+namespace Encryption {
     struct EncryptionContext {
         std::string passphrase;
         std::vector<std::byte> key_material;

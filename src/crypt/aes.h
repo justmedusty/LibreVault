@@ -9,14 +9,12 @@
 #include <string>
 #include <openssl/evp.h>
 
+
 std::string decrypt_aes_256_gcm(const unsigned char *ciphertext,
                                 int ciphertext_len,
                                 unsigned char *key,
                                 unsigned char *iv);
 
-size_t calcDecodeLength(char *b64input);
-
-void Base64Decode(char *b64message, unsigned char **buffer, size_t *length);
 
 void initAES_256_CBC(std::string &pass, unsigned char *salt, unsigned char *key, unsigned char *iv);
 
