@@ -153,5 +153,10 @@ void create_vault(std::filesystem::path &vault_path) {
     }
 
     vault << "#LibreVault vault file" << std::endl;
+    vault << LIBREVAULT_DEFCON_1 << std::endl;
+    vault << LIBREVAULT_DEFCON_2 << std::endl;
+    vault << LIBREVAULT_DEFCON_3 << std::endl;
+    vault << LIBREVAULT_DEFCON_4 << std::endl;
+    vault << LIBREVAULT_DEFCON_5 << std::endl;
     vault.close();
 }
