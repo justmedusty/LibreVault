@@ -42,6 +42,15 @@ enum class EncryptionMode;
 #define ENCRYPTION_OPTION_BLOWFISH_THEN_AES_256_GCM "blowfish_then_aes_256_gcm"
 #define ENCRYPTION_OPTION_CAMELLIA_THEN_AES_256_GCM "camelia_then_aes_256_gcm"
 
+/*
+ *  Each section will have it's own password, this can let you pull more than 1 from a section in 1 operation.
+ */
+#define LIBREVAULT_NUM_SECTIONS 5
+#define LIBREVAULT_DEFCON_1 "<DEFCON1>"
+#define LIBREVAULT_DEFCON_2 "<DEFCON2>"
+#define LIBREVAULT_DEFCON_3 "<DEFCON3>"
+#define LIBREVAULT_DEFCON_4 "<DEFCON4>"
+#define LIBREVAULT_DEFCON_5 "<DEFCON5>"
 
 enum class EncryptionMode {
     AES_256_CBC,
@@ -68,6 +77,9 @@ struct ConfigRepresentation {
         decrypt = false;
         encryption_mode = EncryptionMode::AES_256_CBC;
         obfuscation = FileObfuscation::NO_OBFUSCATION;
+    }
+
+    ~ConfigRepresentation() {
     }
 
     bool decrypt;

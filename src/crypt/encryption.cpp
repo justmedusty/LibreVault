@@ -7,4 +7,25 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+#if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
+#include <sys/mman.h>
+#endif
 
+/*
+ *  This SHOULDNt be an issue generally speaking for an application like this that just runs does something interactive then exits, but
+ *  we should be cautious anyway and ensure that it cannot be paged to disk with sensitive key material or plaintext password.
+ */
+uint32_t lock_pointer(void *ptr, uint32_t size) {
+#if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
+    mlock(ptr, size);
+    return 1;
+#elif defined(_WIN32)
+    VirtualLock(ptr, size);
+    return 1;
+#else
+    std::cout <<
+            "Memory lock cannot be attained, this is not a massive risk since this program is short lived, but paging to disk can compromise program security"
+            << std::endl;
+    return 0;
+#endif
+}

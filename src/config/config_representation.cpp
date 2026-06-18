@@ -3,9 +3,7 @@
 //
 
 #include "config_representation.h"
-
-#include <iostream>
-
+#include "crypt/encryption.h"
 
 void ConfigRepresentation::parse_command_line_args(std::vector<std::string> arguments) {
     for (auto arg = arguments.begin(); arg != arguments.end(); ++arg) {
@@ -29,6 +27,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
                         << FLAG_VALUE << " flag." << std::endl;
             }
             this->value = std::move(*(arg + 1));
+            lock_pointer(&this->value, this->value.size());
             ++arg;
             continue;
         }
@@ -67,6 +66,10 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
     }
 
     if (this->decrypt == false && this->value.empty()) {
+        if (this->value != "") {
+            //cleanse that shit
+            OPENSSL_cleanse(&this->value, this->value.size());
+        }
         std::cerr <<
                 "You have no specified a value and are trying to encrypt! You must provide a value! Try librevault -h for help!"
                 <<
@@ -78,6 +81,11 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
         std::cerr << "You have specified a vault file and the file does not exist! See : " << this->vault_file_path
                 << "Try librevault -h for help!" <<
                 std::endl;
+        if (this->value != "") {
+            //cleanse that shit
+            OPENSSL_cleanse(&this->value, this->value.size());
+        }
+        exit(1);
     }
 }
 

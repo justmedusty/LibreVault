@@ -10,13 +10,19 @@ add_executable(LibreVault src/main.cpp
         src/config/config_representation.h
         src/crypt/encryption.cpp
         src/crypt/encryption.h
-        src/crypt/aes.cpp
-        src/crypt/aes.h
+        src/crypt/algo/aes.cpp
+        src/crypt/algo/aes.h
         src/filesystem/vault_handling.cpp
         src/filesystem/vault_handling.h
         src/crypt/base64.cpp
         src/crypt/base64.h
-        test/test.cpp)
+        test/test.cpp
+        src/crypt/algo/blowfish.cpp
+        src/crypt/algo/blowfish.h
+        src/crypt/algo/chacha20.cpp
+        src/crypt/algo/chacha20.h
+        src/crypt/key_derivation.cpp
+        src/crypt/key_derivation.h)
 
 target_link_libraries(LibreVault PRIVATE OpenSSL::Crypto)
 target_include_directories(LibreVault PRIVATE ${CMAKE_SOURCE_DIR}/src)
