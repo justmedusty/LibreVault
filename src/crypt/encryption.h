@@ -23,6 +23,7 @@ namespace Encryption {
         std::string passphrase;
         std::vector<std::byte> key_material;
         std::vector<std::byte> iv;
+        EncryptionMode mode;
 
         void receive_passphrase();
 
@@ -30,8 +31,11 @@ namespace Encryption {
 
         void encrypt_string(std::string secret);
 
-        EncryptionContext() {
-
+        EncryptionContext(std::string& passphrase) {
+            this->passphrase = std::move(passphrase);
+            this->key_material = std::vector<std::byte>(0);
+            this->iv = std::vector<std::byte>(0);
+            this->mode = EncryptionMode::AES_256_GCM; //Defalt algo
         }
 
         ~EncryptionContext() {
