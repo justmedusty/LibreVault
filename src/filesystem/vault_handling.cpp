@@ -4,6 +4,55 @@
 
 #include "vault_handling.h"
 
+std::string get_decfon_signature(std::string& vault_file_path, Defcon defcon) {
+
+}
+void is_vault_setup(std::string &vault_file_path) {
+    std::ifstream vault(vault_file_path);
+    if (!vault.is_open()) {
+        std::cerr << "Could not open vault file : " << vault_file_path << std::endl;
+        exit(1);
+    }
+
+    std::string line;
+    int found = 0;
+
+    while (std::getline(vault, line)) {
+        if (line.starts_with('<')) {
+            if (line == LIBREVAULT_DEFCON_1) {
+                found++;
+                continue;
+            }
+
+            if (line == LIBREVAULT_DEFCON_2) {
+                found++;
+                continue;
+            }
+
+            if (line == LIBREVAULT_DEFCON_3) {
+                found++;
+                continue;
+            }
+
+            if (line == LIBREVAULT_DEFCON_4) {
+                found++;
+                continue;
+            }
+
+            if (line == LIBREVAULT_DEFCON_5) {
+                found++;
+                continue;
+            }
+        }
+    }
+
+    if (found > 0 && found != 5) {
+        std::cerr << vault_file_path << " contains a vault file, but it is invalid! You will need to fix it or reset your vault!" <<
+                std::endl;
+        exit(1);
+    }
+
+}
 
 void write_entry(std::string &key, std::string &value, ConfigRepresentation &config) {
     std::ifstream vault(config.vault_file_path);

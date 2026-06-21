@@ -10,8 +10,8 @@ void handle_openssl_errors(std::string *where) {
 }
 
 
-bool aes_256_gcm_encrypt(const unsigned char *plaintext, int plaintext_len, const unsigned char *key,
-                         const unsigned char *iv, unsigned char *ciphertext, int &ciphertext_len) {
+bool aes_256_gcm_encrypt(unsigned char *plaintext, int plaintext_len, const unsigned char *key,
+                         const unsigned char *iv, unsigned char *ciphertext, int *ciphertext_len) {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
         std::cerr << "Failed to create EVP_CIPHER_CTX" << std::endl;
@@ -24,7 +24,13 @@ bool aes_256_gcm_encrypt(const unsigned char *plaintext, int plaintext_len, cons
         return false;
     }
 
-    if (EVP_EncryptUpdate(ctx, ciphertext, &ciphertext_len, plaintext, plaintext_len) != 1) {
+    if (EVP_EncryptUpdate(ctx, ciphertext, ciphertext_len, plaintext, plaintext_len) != 1) {
+        std::cerr << "Failed to encrypt data" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return false;
+    }
+
+    if (EVP_EncryptFinal(ctx, ciphertext, ciphertext_len) != 1) {
         std::cerr << "Failed to encrypt data" << std::endl;
         EVP_CIPHER_CTX_free(ctx);
         return false;
@@ -50,6 +56,12 @@ bool aes_256_gcm_decrypt(const unsigned char *ciphertext, int ciphertext_len, co
 
     if (EVP_DecryptUpdate(ctx, plaintext, &plaintext_len, ciphertext, ciphertext_len) != 1) {
         std::cerr << "Failed to decrypt data" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return false;
+    }
+
+    if (EVP_DecryptFinal(ctx, plaintext, &plaintext_len) != 1) {
+        std::cerr << "You have entered an incorrect password. Please try again." << std::endl;
         EVP_CIPHER_CTX_free(ctx);
         return false;
     }

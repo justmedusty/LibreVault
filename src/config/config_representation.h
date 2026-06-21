@@ -52,6 +52,11 @@ enum class EncryptionMode;
 #define LIBREVAULT_DEFCON_4 "<DEFCON4>"
 #define LIBREVAULT_DEFCON_5 "<DEFCON5>"
 
+#define LIBREVAULT_VAULT_SIG_START "<-- sig=
+//The encrypted string to be placed under each defcon header to be a source of truth for the correctness of a password against a DEFCON level
+#define LIBREVAULT_ENCRYPTION_STRING "BECAUSE_I_CHOOSE_TO"
+#define LIBREVAULT_VAULT_SIG_END " -->"
+
 enum class EncryptionMode {
     AES_256_CBC,
     AES_256_GCM,
@@ -69,6 +74,15 @@ enum class FileObfuscation {
     //Embed the KV map into another file like a dummy binary and hiding it in the heap mapping of the ELF executable etc
     FILE_LOCATION_RANDOMIZATION, //Everything normal but just put the kv file in an odd place
 };
+
+enum class Defcon {
+    DEFCON1,
+    DEFCON2,
+    DEFCON3,
+    DEFCON4,
+    DEFCON5,
+};
+
 
 struct ConfigRepresentation {
     void parse_command_line_args(std::vector<std::string> args);
@@ -88,6 +102,7 @@ struct ConfigRepresentation {
     FileObfuscation obfuscation;
     EncryptionMode encryption_mode;
     std::string vault_file_path;
+    Defcon defcon;
 
 private:
     static void help() {
@@ -104,7 +119,18 @@ private:
                 "-k -> precedes the key to the value you are trying to retreive from the vault" << std::endl <<
                 "-v -> precedes the value FOR ENCRYPTION OPERATION ONLY." << std::endl <<
                 "-a -> precedes the encryption algorithm you wish to use. Not yet implemented." << std::endl <<
-                "-h -> display the help message you are currently reading."""
+                "-h -> display the help message you are currently reading." << std::endl <<
+                "" << std::endl <<
+                "This program has 5 separate levels of the vault:" << std::endl <<
+                "DEFCON1 -> MOST SERIOUS SECRETS, SHOULD HAVE FEW ENTRIES AND MAXIMALLY COMPLEX PASSWORD" << std::endl
+                <<
+                "DEFCON2 -> VERY SERIOUS SECRETS, SHOULD ALSO HAVE FEW ENTRIES AND A MAXIMALLY COMPLEX PASSWORD" <<
+                std::endl <<
+                "DEFCON3 -> MID-LEVEL SERIOUS SECRETS, SHOULD HAVE A COMPLEX PASSWORD, COULD BE WRITTEN DOWN ON PAPER"
+                << std::endl <<
+                "DEFCON4 -> LESS-SERIOUS, ONLINE ACCOUNT PASSWORDS AND THINGS OF THIS NATURE, COULD BE WRITTEN DOWN ON PAPER" << std::endl <<
+                "DEFCON5 -> LEAST SERIOUS, PASSWORD DOES NOT NEED TO BE VERY COMPLEX JUST ENOUGH TO KEEP LOOKY LOOS OUT, COULD BE WRITTEN DOWN ON PAPER"
+                ""
                 << std::endl;
         exit(0);
     }
