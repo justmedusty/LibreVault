@@ -52,7 +52,7 @@ enum class EncryptionMode;
 #define LIBREVAULT_DEFCON_4 "<DEFCON4>"
 #define LIBREVAULT_DEFCON_5 "<DEFCON5>"
 
-#define LIBREVAULT_VAULT_SIG_START "<-- sig=
+#define LIBREVAULT_VAULT_SIG_START "<-- sig="
 //The encrypted string to be placed under each defcon header to be a source of truth for the correctness of a password against a DEFCON level
 #define LIBREVAULT_ENCRYPTION_STRING "BECAUSE_I_CHOOSE_TO"
 #define LIBREVAULT_VAULT_SIG_END " -->"

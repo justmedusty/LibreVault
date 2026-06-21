@@ -4,9 +4,9 @@
 
 #include "vault_handling.h"
 
-std::string get_decfon_signature(std::string& vault_file_path, Defcon defcon) {
-
+std::string get_decfon_signature(std::string &vault_file_path, Defcon defcon) {
 }
+
 void is_vault_setup(std::string &vault_file_path) {
     std::ifstream vault(vault_file_path);
     if (!vault.is_open()) {
@@ -16,6 +16,7 @@ void is_vault_setup(std::string &vault_file_path) {
 
     std::string line;
     int found = 0;
+    int sig = 0;
 
     while (std::getline(vault, line)) {
         if (line.starts_with('<')) {
@@ -44,14 +45,27 @@ void is_vault_setup(std::string &vault_file_path) {
                 continue;
             }
         }
+
+        if (line.starts_with(LIBREVAULT_VAULT_SIG_START)) {
+            /*
+             *  We won't check that the whole signature is there , it will be unless someone is playing around with their own vault file
+             */
+            sig++;
+        }
     }
 
     if (found > 0 && found != 5) {
-        std::cerr << vault_file_path << " contains a vault file, but it is invalid! You will need to fix it or reset your vault!" <<
+        std::cerr << vault_file_path <<
+                " contains a vault file, but it is invalid! You will need to fix it or reset your vault!" <<
                 std::endl;
         exit(1);
     }
 
+    if (found > 0 || sig > 0) {
+        std::cerr <<
+                "Not all defcon levels have an associated verification signature. This will not prevent this program from running, but you will need to set a password for any DEFCON section without an associated signature."
+                << std::endl;
+    }
 }
 
 void write_entry(std::string &key, std::string &value, ConfigRepresentation &config) {
