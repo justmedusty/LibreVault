@@ -17,10 +17,6 @@ add_executable(LibreVault src/main.cpp
         src/crypt/base64.cpp
         src/crypt/base64.h
         test/test.cpp
-        src/crypt/algo/blowfish.cpp
-        src/crypt/algo/blowfish.h
-        src/crypt/algo/chacha20.cpp
-        src/crypt/algo/chacha20.h
         src/crypt/key_derivation.cpp
         src/crypt/key_derivation.h)
 

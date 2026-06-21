@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 //Tell the OS not to page this memory to disk
-uint32_t lock_pointer(void *ptr, uint32_t size);
+void lock_memory();
 
 
 namespace Encryption {
@@ -28,14 +28,13 @@ namespace Encryption {
         void receive_passphrase();
 
         void decrypt_string(std::string secret);
-
         void encrypt_string(std::string secret);
 
-        EncryptionContext(std::string& passphrase) {
+        EncryptionContext(std::string &passphrase) {
             this->passphrase = std::move(passphrase);
             this->key_material = std::vector<std::byte>(0);
             this->iv = std::vector<std::byte>(0);
-            this->mode = EncryptionMode::AES_256_GCM; //Defalt algo
+            this->mode = EncryptionMode::AES_256_GCM; //Default algo
         }
 
         ~EncryptionContext() {
@@ -43,8 +42,5 @@ namespace Encryption {
             OPENSSL_cleanse(&this->key_material, this->key_material.size());
         }
     };
-
-
-
 };
 #endif //LIBREVAULT_ENCRYPTION_H

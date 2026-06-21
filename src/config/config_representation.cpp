@@ -27,7 +27,6 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
                         << FLAG_VALUE << " flag." << std::endl;
             }
             this->value = std::move(*(arg + 1));
-            lock_pointer(&this->value, this->value.size());
             ++arg;
             continue;
         }
