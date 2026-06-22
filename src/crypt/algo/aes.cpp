@@ -110,7 +110,7 @@ bool aes_256_gcm_decrypt(const unsigned char *ciphertext, int ciphertext_len, co
     rv = EVP_DecryptFinal_ex(ctx, plaintext, &plaintext_len);
 
     tag_authenticated = rv > 0;
-    if (!tag_authenticated) {
+    if (tag_authenticated) {
         ret = 1;
     }
 err:
