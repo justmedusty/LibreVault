@@ -65,7 +65,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
     }
 
     if (this->decrypt == false && this->value.empty()) {
-        if (this->value != "") {
+        if (!this->value.empty()) {
             //cleanse that shit
             OPENSSL_cleanse(&this->value, this->value.size());
         }
