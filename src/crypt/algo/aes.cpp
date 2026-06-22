@@ -66,7 +66,7 @@ err:
 }
 
 bool aes_256_gcm_decrypt(const unsigned char *ciphertext, int ciphertext_len, const unsigned char *key,
-                         const unsigned char *iv, const size_t iv_len, unsigned char *plaintext, int &plaintext_len,
+                         const unsigned char *iv, unsigned char *plaintext, int &plaintext_len,
                          unsigned char *tag) {
     OSSL_PARAM params[2] = {
         OSSL_PARAM_END, OSSL_PARAM_END
@@ -95,7 +95,7 @@ bool aes_256_gcm_decrypt(const unsigned char *ciphertext, int ciphertext_len, co
 
 
     /* Decrypt plaintext */
-    if (!EVP_DecryptUpdate(ctx, plaintext, &plaintext_len, ciphertext, sizeof(ciphertext)))
+    if (!EVP_DecryptUpdate(ctx, plaintext, &plaintext_len, ciphertext, ciphertext_len))
         goto err;
 
 
