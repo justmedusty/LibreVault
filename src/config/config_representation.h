@@ -120,7 +120,8 @@ private:
                 "-v -> precedes the value FOR ENCRYPTION OPERATION ONLY." << std::endl <<
                 "-a -> precedes the encryption algorithm you wish to use. Not yet implemented." << std::endl <<
                 "-h -> display the help message you are currently reading." << std::endl <<
-                "" << std::endl <<
+                "-dk -> delete a key and its associated value from the vault" << std::endl <<
+                "-repass -> precedes a DEFCONX option, DEFCON1 for defcon 1 and so on. Changes the password for that entire section of the vault. You must verify the current password first." << std::endl <<
                 "This program has 5 separate levels of the vault:" << std::endl <<
                 "DEFCON1 -> MOST SERIOUS SECRETS, SHOULD HAVE FEW ENTRIES AND MAXIMALLY COMPLEX PASSWORD" << std::endl
                 <<
@@ -128,7 +129,8 @@ private:
                 std::endl <<
                 "DEFCON3 -> MID-LEVEL SERIOUS SECRETS, SHOULD HAVE A COMPLEX PASSWORD, COULD BE WRITTEN DOWN ON PAPER"
                 << std::endl <<
-                "DEFCON4 -> LESS-SERIOUS, ONLINE ACCOUNT PASSWORDS AND THINGS OF THIS NATURE, COULD BE WRITTEN DOWN ON PAPER" << std::endl <<
+                "DEFCON4 -> LESS-SERIOUS, ONLINE ACCOUNT PASSWORDS AND THINGS OF THIS NATURE, COULD BE WRITTEN DOWN ON PAPER"
+                << std::endl <<
                 "DEFCON5 -> LEAST SERIOUS, PASSWORD DOES NOT NEED TO BE VERY COMPLEX JUST ENOUGH TO KEEP LOOKY LOOS OUT, COULD BE WRITTEN DOWN ON PAPER"
                 ""
                 << std::endl;
