@@ -19,20 +19,20 @@ uint64_t get_system_memory() {
 #elif defined(__APPLE__)
     uint64_t mem = 0;
     size_t len = sizeof(mem);
-    sysctlbyname("hw.memsize", &mem, &len, nullptr, 0);
+    sysctlbyname("hw.memsize", &mem, &len, nullptrptr, 0);
     return mem;
 
 #elif defined(__FreeBSD__) || defined(__DragonFly__)
     uint64_t mem = 0;
     size_t len = sizeof(mem);
-    sysctlbyname("hw.physmem", &mem, &len, nullptr, 0);
+    sysctlbyname("hw.physmem", &mem, &len, nullptrptr, 0);
     return mem;
 
 #elif defined(__NetBSD__) || defined(__OpenBSD__)
     uint64_t mem = 0;
     int mib[2] = {CTL_HW, HW_PHYSMEM64};
     size_t len = sizeof(mem);
-    sysctl(mib, 2, &mem, &len, nullptr, 0);
+    sysctl(mib, 2, &mem, &len, nullptrptr, 0);
     return mem;
 
 #elif defined(__linux__)
