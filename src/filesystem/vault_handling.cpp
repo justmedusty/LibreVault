@@ -4,6 +4,8 @@
 
 #include "vault_handling.h"
 
+#include <algorithm>
+
 std::string get_decfon_signature(std::string &vault_file_path, Defcon defcon) {
 }
 
@@ -110,10 +112,18 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
     std::filesystem::rename(temp_path, config.vault_file_path);
 }
 
+static bool replace(std::string &str, const std::string &from, const std::string &to) {
+    size_t start_pos = str.find(from);
+    if (start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
 /*
  *  Finds an entry and reads it into value.
  */
-bool read_entry(std::string &key, std::string &value, ConfigRepresentation &config) {
+Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &config, std::string *signature) {
     std::ifstream vault(config.vault_file_path);
 
     if (!vault.is_open()) {
@@ -128,8 +138,38 @@ bool read_entry(std::string &key, std::string &value, ConfigRepresentation &conf
     }
 
     std::string line;
+    std::string sig;
+    Defcon defcon;
 
     while (std::getline(vault, line)) {
+        if (line == LIBREVAULT_DEFCON_1) {
+            defcon = Defcon::DEFCON1;
+            continue;
+        }
+
+        if (line == LIBREVAULT_DEFCON_2) {
+            defcon = Defcon::DEFCON2;
+            continue;
+        }
+
+        if (line == LIBREVAULT_DEFCON_3) {
+            defcon = Defcon::DEFCON3;
+            continue;
+        }
+        if (line == LIBREVAULT_DEFCON_4) {
+            defcon = Defcon::DEFCON4;
+            continue;
+        }
+        if (line == LIBREVAULT_DEFCON_5) {
+            defcon = Defcon::DEFCON5;
+            continue;
+        }
+
+        if (line.starts_with(LIBREVAULT_VAULT_SIG_START)) {
+            sig = line.replace(line.find(LIBREVAULT_VAULT_SIG_START), sizeof(LIBREVAULT_VAULT_SIG_START) - 1, "");
+            sig = line.replace(line.find(LIBREVAULT_VAULT_SIG_END), sizeof(LIBREVAULT_VAULT_SIG_END) - 1, "");
+        }
+
         if (line.starts_with('#')) // support comments
             continue;
 
@@ -140,10 +180,13 @@ bool read_entry(std::string &key, std::string &value, ConfigRepresentation &conf
 
         if (k == key) {
             value = v;
-            return true;
+            *signature = std::move(sig);
+            return defcon;
         }
     }
-    return false;
+
+    std::cerr << "The key " << key << " is not present in the vault file." << std::endl;
+    exit(1);
 }
 
 

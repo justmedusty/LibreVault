@@ -1,3 +1,13 @@
 # LibreVault
 
-Key value encrypted storage , designed for passwords or other sensitive strings not for large files. Written in C++. Will have configurable algorithm security options (more hashing rounds for key derivation etc) plus will likely include some configurable  obfuscation techniques to hide the location of the file or make it not as obvious what it is
+## Key value encrypted storage
+5 levels of the vault: <br>
+DEFCON1 -> Most secure, use strongest password <br>
+DEFCON2 -> Very secure, use very strong password <br>
+DEFCON3 -> Middle ground, use secure password, can store less important things like a forum password
+DEFCON4 -> Less secure, can use weaker passwords
+DEFCON5 -> Least secure, can use a simple password, mostly to keep people from snooping
+<br>
+AES 256 GCM will be used for the HMAC-like tag to verify that your password is correct.<br>
+There will be a signature within each DEFCON level that will securely identify your password(a known string encrypted) <br>
+This will ensure that you do not accidentally type a different password for another entry within that DEFCON level

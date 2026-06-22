@@ -15,11 +15,12 @@
 #define MAXIMUM_VAULT_SIZE (1024 * 1024 * 1024) // This is arbitrary but because we are reading the entire file into memory we need a sanity check, 1MB is absolutely massive so this should never happen
 
 
+
 void is_vault_setup(std::string &vault_file_path);
 
 void write_entry(std::string &key, std::string &value, ConfigRepresentation &config);
 
-bool read_entry(std::string &key, std::string &value, ConfigRepresentation &config);
+Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &config);
 
 void delete_entry(std::string &key, ConfigRepresentation &config);
 
