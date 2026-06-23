@@ -19,12 +19,10 @@ bool aes_256_gcm_encrypt(unsigned char *plaintext, int plaintext_len, const unsi
     int ret = 0;
     EVP_CIPHER_CTX *ctx;
     EVP_CIPHER *cipher = nullptr;
-    bool tag_authenticated = false;
     int tmplen = 0;
     OSSL_PARAM params[2] = {
         OSSL_PARAM_END, OSSL_PARAM_END
     };
-    int rv;
 
     /* Create a context for the encrypt operation */
     if ((ctx = EVP_CIPHER_CTX_new()) == nullptr)
@@ -34,7 +32,7 @@ bool aes_256_gcm_encrypt(unsigned char *plaintext, int plaintext_len, const unsi
     if ((cipher = EVP_CIPHER_fetch(nullptr, "AES-256-GCM", nullptr)) == nullptr)
         goto err;
 
-    if (!EVP_EncryptInit_ex2(ctx, cipher, key, nullptr, params))
+    if (!EVP_EncryptInit_ex2(ctx, cipher, key, iv, params))
         goto err;
 
     /* Encrypt plaintext */
@@ -112,7 +110,10 @@ bool aes_256_gcm_decrypt(const unsigned char *ciphertext, int ciphertext_len, co
     tag_authenticated = rv > 0;
     if (tag_authenticated) {
         ret = 1;
+    } else {
+        std::cerr << "The provided password is incorrect" << std::endl;
     }
+
 err:
     if (!ret)
         ERR_print_errors_fp(stderr);

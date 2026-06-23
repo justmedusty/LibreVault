@@ -14,7 +14,5 @@
 #include <string>
 #include <thread>
 
-
 std::vector<uint8_t> generate_salt();
-
 #endif //LIBREVAULT_KEY_DERIVATION_H

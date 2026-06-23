@@ -17,17 +17,19 @@
 //Tell the OS not to page this memory to disk
 void lock_memory();
 
-
 namespace Encryption {
     struct EncryptionContext {
         std::string passphrase;
         std::vector<std::byte> key_material;
         std::vector<std::byte> iv;
+        std::string secret;
+        Defcon current_defcon;
         EncryptionMode mode;
 
         void receive_passphrase();
 
-        void decrypt_string(std::string secret);
+        void decrypt_string(std::string ciphertext);
+
         void encrypt_string(std::string secret);
 
         EncryptionContext(std::string &passphrase) {
@@ -35,11 +37,15 @@ namespace Encryption {
             this->key_material = std::vector<std::byte>(0);
             this->iv = std::vector<std::byte>(0);
             this->mode = EncryptionMode::AES_256_GCM; //Default algo
+            this->secret = "";
         }
+
+        EncryptionContext();
 
         ~EncryptionContext() {
             OPENSSL_cleanse(&this->passphrase, this->passphrase.size());
             OPENSSL_cleanse(&this->key_material, this->key_material.size());
+            OPENSSL_cleanse(&this->secret, this->secret.size());
         }
     };
 };

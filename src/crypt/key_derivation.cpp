@@ -36,7 +36,7 @@ uint64_t get_system_memory() {
     return mem;
 
 #elif defined(__linux__)
-    struct sysinfo info;
+    struct sysinfo info = {};
     sysinfo(&info);
     return (uint64_t) info.totalram * info.mem_unit;
 
@@ -69,7 +69,7 @@ std::vector<uint8_t> derive_key(
     argon2MB = std::max(argon2MB, static_cast<uint64_t>(1024)); // floor: 1G
     argon2MB = std::min(argon2MB, static_cast<uint64_t>(4096)); // ceil:  4 GB
 
-    uint32_t m_cost = static_cast<uint32_t>(argon2MB * 1024); // Argon2 takes KB for the m_cost param
+    auto m_cost = static_cast<uint32_t>(argon2MB * 1024); // Argon2 takes KB for the m_cost param
 
     uint32_t iterations = 8; // This is extreme but it is okay for a local KV vault to go tin foil hat on the security
     uint32_t parallelism = std::thread::hardware_concurrency(); // num lanes will be the number of cores on the system
@@ -85,7 +85,7 @@ std::vector<uint8_t> derive_key(
     std::vector<uint8_t> key;
 
     EVP_KDF_CTX *ctx = EVP_KDF_CTX_new(kdf);
-    auto ret = EVP_KDF_derive(ctx, key.data(), key.size(), params);
+    auto ret = EVP_KDF_derive(ctx, key.data(), keyLen, params);
 
     if (!ret) {
         std::cerr << "EVP_KDF_derive failed" << std::endl;
