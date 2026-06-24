@@ -23,7 +23,7 @@ namespace Base64 {
       41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 64, 64, 64, 64, 64
    };
 
-   std::string base64_encode(const std::string &bindata) {
+   std::string base64_encode(const ::std::string &bindata) {
       using std::string;
       using std::numeric_limits;
 

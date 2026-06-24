@@ -4,13 +4,15 @@
 
 #include "encryption.h"
 
+#include <fstream>
 #include <iostream>
 #include <ostream>
 #include <string>
 #if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
 #include <sys/mman.h>
 #endif
-
+#include "base64.h"
+#include "algo/aes.h"
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -44,7 +46,7 @@ namespace Encryption {
 #endif
     }
 
-//Check if we are actually in a terminal environment
+    //Check if we are actually in a terminal environment
     bool stdin_terminal() {
 #ifdef WIN32
         return _isatty(_fileno(stdin));
@@ -87,6 +89,85 @@ namespace Encryption {
             fputs("tcsetattr failed\n", stderr);
         }
 #endif
+    }
+
+
+    std::string EncryptionContext::get_signature(Defcon defconLevel) const {
+        std::string signature;
+        std::string defcon;
+
+        switch (defconLevel) {
+            case Defcon::DEFCON1:
+                defcon = std::string{LIBREVAULT_DEFCON_1};
+                break;
+            case Defcon::DEFCON2:
+                defcon = std::string{LIBREVAULT_DEFCON_2};
+                break;
+            case Defcon::DEFCON3:
+                defcon = std::string{LIBREVAULT_DEFCON_3};
+                break;
+            case Defcon::DEFCON4:
+                defcon = std::string{LIBREVAULT_DEFCON_4};
+                break;
+            case Defcon::DEFCON5:
+                defcon = std::string{LIBREVAULT_DEFCON_5};
+                break;
+            default:
+                return "";
+        }
+
+        std::ifstream vault(this->configRepresentation.vault_file_path);
+
+        std::string line;
+        bool here = false;
+        while (std::getline(vault, line)) {
+            if (line == defcon) {
+                here = true;
+                continue;
+            }
+
+            if (here) {
+                std::string sig = line.substr(sizeof(LIBREVAULT_VAULT_SIG_START),
+                                              line.size() - sizeof(LIBREVAULT_VAULT_SIG_END));
+                std::cout << "SIG :" << sig << std::endl;
+                return sig;
+            }
+        }
+        std::cerr << "End of get_signature reached, this is a major bug! Please report to developer" << std::endl;
+        return "";
+    }
+
+    bool EncryptionContext::verify_defcon_signature() {
+        std::string expected = LIBREVAULT_ENCRYPTION_STRING;
+
+        std::string signature = this->get_signature(this->current_defcon);
+        const std::string iv = Base64::base64_decode(signature).substr(0,AES_GCM_IV_LEN);
+        std::string ciphertext = Base64::base64_decode(iv).substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, iv.size());
+        std::string tag = Base64::base64_decode(ciphertext).substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
+        std::string plaintext = {50};
+
+
+        int plaintext_len = 50;
+        const auto plaintext_ptr = reinterpret_cast<unsigned char *>(plaintext.data());
+        const auto *ciphertext_ptr = reinterpret_cast<unsigned char *>(ciphertext.data());
+        const auto tag_ptr = reinterpret_cast<unsigned char *>(tag.data());
+        const auto key_ptr = reinterpret_cast<unsigned char *>(this->key_material.data());
+
+        const auto ret = aes_256_gcm_decrypt(ciphertext_ptr, ciphertext.size(), key_ptr,
+                                             reinterpret_cast<const unsigned char *>(iv.c_str()), plaintext_ptr,
+                                             plaintext_len, tag_ptr);
+
+        if (ret != 0) {
+            std::cerr << "Encryption verification failed" << std::endl;
+            return false;
+        }
+
+        if (ciphertext != plaintext) {
+            std::cerr << "verify_defcon_signature: Outputs do not much" << std::endl;
+            return false;
+        }
+
+        return true;
     }
 
     void EncryptionContext::receive_passphrase() {
