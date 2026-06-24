@@ -13,9 +13,10 @@
 #include "base64.h"
 #include "algo/aes.h"
 
-//Tell the OS not to page this memory to disk
-
-
+/*
+ *  Putting as a note for now
+ *  The ciphertext will be : 16 BYTE KDF SALT | 12 BYTE AES-256-GCM IV | 16 BYTE AES-256-GCM AEAD TAG | CIPHERTEXT + padding
+ */
 namespace Encryption {
     void lock_memory();
 
@@ -33,7 +34,7 @@ namespace Encryption {
 
         void decrypt_string(std::string ciphertext);
 
-        void encrypt_string(std::string secret);
+        std::string encrypt_string(std::string secret);
 
         explicit EncryptionContext(const ConfigRepresentation &config) {
             this->current_defcon = config.defcon;
@@ -48,9 +49,9 @@ namespace Encryption {
         }
 
         ~EncryptionContext() {
-            OPENSSL_cleanse(&this->passphrase, this->passphrase.size());
-            OPENSSL_cleanse(&this->key_material, this->key_material.size());
-            OPENSSL_cleanse(&this->secret, this->secret.size());
+            OPENSSL_cleanse(this->passphrase.data(), this->passphrase.size());
+            OPENSSL_cleanse(this->key_material.data(), this->key_material.size());
+            OPENSSL_cleanse(this->secret.data(), this->secret.size());
         }
 
     private:

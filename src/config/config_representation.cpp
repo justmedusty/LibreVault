@@ -67,7 +67,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
     if (this->decrypt == false && this->value.empty()) {
         if (!this->value.empty()) {
             //cleanse that shit
-            OPENSSL_cleanse(&this->value, this->value.size());
+            OPENSSL_cleanse(this->value.data(), this->value.size());
         }
         std::cerr <<
                 "You have no specified a value and are trying to encrypt! You must provide a value! Try librevault -h for help!"
@@ -82,7 +82,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
                 std::endl;
         if (this->value != "") {
             //cleanse that shit
-            OPENSSL_cleanse(&this->value, this->value.size());
+            OPENSSL_cleanse(this->value.data(), this->value.size());
         }
         exit(1);
     }

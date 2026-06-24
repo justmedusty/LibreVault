@@ -4,8 +4,7 @@
 
 #ifndef LIBREVAULT_KEY_DERIVATION_H
 #define LIBREVAULT_KEY_DERIVATION_H
-#define RANDOM_BITS_FILE "/dev/random"
-#define DEFAULT_HASH_ITER
+#define KDF_SALT_SIZE_BYTES 16
 
 #include <openssl/evp.h>
 #include <openssl/rand.h>

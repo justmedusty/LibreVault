@@ -57,22 +57,13 @@ enum class EncryptionMode;
 #define LIBREVAULT_VAULT_SIG_END " -->"
 
 enum class EncryptionMode {
-    AES_256_CBC,
     AES_256_GCM,
-    BLOWFISH_THEN_AES_256_CBC,
-    CAMELLIA_256_THEN_AES_256_CBC,
-    BLOWFISH_THEN_AES_256_GCM,
-    CAMELLIA_256_THEN_AES_256_GCM
+    /*
+     *  I was going to support many algos but I might not.
+     *  We will see.
+     */
 };
 
-
-enum class FileObfuscation {
-    NO_OBFUSCATION,
-    FILE_CONTENTS_SCRAMBLING, //Make it less obvious that its a KV map and possibly of value
-    EMBEDDED,
-    //Embed the KV map into another file like a dummy binary and hiding it in the heap mapping of the ELF executable etc
-    FILE_LOCATION_RANDOMIZATION, //Everything normal but just put the kv file in an odd place
-};
 
 enum class Defcon {
     DEFCON1,
@@ -88,8 +79,7 @@ struct ConfigRepresentation {
 
     ConfigRepresentation() {
         decrypt = false;
-        encryption_mode = EncryptionMode::AES_256_CBC;
-        obfuscation = FileObfuscation::NO_OBFUSCATION;
+        encryption_mode = EncryptionMode::AES_256_GCM;
     }
 
     ~ConfigRepresentation() {
@@ -98,7 +88,6 @@ struct ConfigRepresentation {
     bool decrypt;
     std::string key;
     std::string value;
-    FileObfuscation obfuscation;
     EncryptionMode encryption_mode;
     std::string vault_file_path;
     Defcon defcon;

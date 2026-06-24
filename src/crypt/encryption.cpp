@@ -179,10 +179,33 @@ namespace Encryption {
 
 
     void EncryptionContext::decrypt_string(std::string ciphertext) {
+        std::string decoded = Base64::base64_decode(ciphertext);
+        std::string iv = decoded.substr(0, AES_GCM_IV_LEN);
+        std::string tag = decoded.substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
+        std::string cipherttxt = decoded.substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, ciphertext.size());
+
+        int i = 0;
+        for (const auto &c: iv) {
+            this->iv[i++] = static_cast<std::byte>(c);
+        }
+
+        std::string plaintext(ciphertext.length(), '\0');
+
+        const auto plaintext_ptr = reinterpret_cast<unsigned char *>(plaintext.data());
+        const auto ciphertext_ptr = reinterpret_cast<unsigned char *>(cipherttxt.data());
+        const auto tag_ptr = reinterpret_cast<unsigned char *>(tag.data());
+        const auto key_ptr = reinterpret_cast<unsigned char *>(this->key_material.data());
+        const auto iv_ptr = reinterpret_cast<unsigned char *>(this->iv.data());
+
+        int plaintext_len = ciphertext.length();
+        auto ret = aes_256_gcm_decrypt(ciphertext_ptr, cipherttxt.size(), key_ptr, iv_ptr, plaintext_ptr, plaintext_len,
+                                       tag_ptr);
+
+        if (!ret) {
+            std::cerr << "Decryption failed" << std::endl;
+        }
     }
 
-    void EncryptionContext::encrypt_string(std::string secret) {
-    }
 
     void EncryptionContext::receive_passphrase() {
         set_stdin_echo(false);
