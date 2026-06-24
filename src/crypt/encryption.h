@@ -11,12 +11,14 @@
 #include "config/config_representation.h"
 #include <unistd.h>
 #include "base64.h"
+#include "algo/aes.h"
 
 //Tell the OS not to page this memory to disk
 
 
 namespace Encryption {
     void lock_memory();
+
     struct EncryptionContext {
         std::string passphrase;
         std::vector<std::byte> key_material;
@@ -37,10 +39,10 @@ namespace Encryption {
             this->current_defcon = config.defcon;
             this->configRepresentation = config;
             this->passphrase = "";
-            this->key_material = std::vector<std::byte>{32};
-            this->iv = std::vector<std::byte>(0);
+            this->key_material = std::vector<std::byte>(32);
+            this->iv = std::vector<std::byte>(AES_GCM_IV_LEN);
             this->mode = EncryptionMode::AES_256_GCM; //Default algo
-            this->secret = "";
+            this->secret = config.value;
             this->defcon_signature = "";
             receive_passphrase();
         }
@@ -54,7 +56,9 @@ namespace Encryption {
     private:
         bool verify_defcon_signature();
 
-        [[nodiscard]] std::string get_signature(Defcon current_defcon) const;
+        void generate_iv();
+
+        [[nodiscard]] std::string get_signature() const;
     };
 };
 #endif //LIBREVAULT_ENCRYPTION_H

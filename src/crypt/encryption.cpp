@@ -11,6 +11,8 @@
 #if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
 #include <sys/mman.h>
 #endif
+#include <openssl/rand.h>
+
 #include "base64.h"
 #include "algo/aes.h"
 #ifdef WIN32
@@ -27,7 +29,7 @@ namespace Encryption {
     void lock_memory() {
 #if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
         //THIS SHOULD HAVE MCL_CURRENT AND MCL_FUTURE FOR NOW JUST MCL FUTURE SINCE IT NEEDS ADDDED CAPS FOR BOTH
-        if (mlockall( MCL_FUTURE) < 0) {
+        if (mlockall(MCL_FUTURE) < 0) {
             // lock all current and future pages into main memory
             std::cerr <<
                     "mlockall failed, exiting early for security purposes. Check memory availability/consumption and try again."
@@ -76,7 +78,7 @@ namespace Encryption {
             fputs("SetConsoleMode failed\n", stderr);
         }
 #else
-        struct termios tty;
+        termios tty;
         if (tcgetattr(STDIN_FILENO, &tty) != 0) {
             fputs("tcgetattr failed\n", stderr);
             return;
@@ -92,12 +94,16 @@ namespace Encryption {
 #endif
     }
 
+    void EncryptionContext::generate_iv() {
+        auto iv_ptr = reinterpret_cast<unsigned char *>(this->iv.data());
+        RAND_bytes(iv_ptr, AES_GCM_IV_LEN);
+    }
 
-    std::string EncryptionContext::get_signature(Defcon current_defcon) const {
+    std::string EncryptionContext::get_signature() const {
         std::string signature;
         std::string defcon;
 
-        switch (current_defcon) {
+        switch (this->current_defcon) {
             case Defcon::DEFCON1:
                 defcon = std::string{LIBREVAULT_DEFCON_1};
                 break;
@@ -141,7 +147,7 @@ namespace Encryption {
     bool EncryptionContext::verify_defcon_signature() {
         std::string expected = LIBREVAULT_ENCRYPTION_STRING;
 
-        std::string signature = this->get_signature(this->current_defcon);
+        std::string signature = this->get_signature();
         const std::string iv = Base64::base64_decode(signature).substr(0,AES_GCM_IV_LEN);
         std::string ciphertext = Base64::base64_decode(iv).substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, iv.size());
         std::string tag = Base64::base64_decode(ciphertext).substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
