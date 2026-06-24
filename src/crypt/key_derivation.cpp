@@ -5,7 +5,6 @@
 #include "key_derivation.h"
 #include <openssl/kdf.h>
 #include <sys/sysinfo.h>
-#include <cstdint>
 
 //Platform agnostic get system memory, we are just doing this to ensure we arent going to absolutely shit their whole system down the
 //drain with our tinfoil hate argon2 parameters. 

@@ -8,17 +8,15 @@
 #include <vector>
 #include "openssl/aes.h"
 #include "openssl/crypto.h"
-#include "openssl/blowfish.h"
-#include "openssl/pkcs12.h"
-#include "openssl/camellia.h"
 #include "config/config_representation.h"
 #include <unistd.h>
 #include "base64.h"
 
 //Tell the OS not to page this memory to disk
-void lock_memory();
+
 
 namespace Encryption {
+    void lock_memory();
     struct EncryptionContext {
         std::string passphrase;
         std::vector<std::byte> key_material;

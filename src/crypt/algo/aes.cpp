@@ -7,6 +7,8 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/core_names.h>
+#include <string>
+#include <iostream>
 
 void handle_openssl_errors(std::string *where) {
     std::cout << "OpenSSL Error: " << where << std::endl;

@@ -4,10 +4,6 @@
 
 #ifndef LIBREVAULT_AES_H
 #define LIBREVAULT_AES_H
-#include <iostream>
-#include "../encryption.h"
-#include <string>
-#include <openssl/evp.h>
 
 #define AES_GCM_IV_LEN 12
 #define AES_GCM_AEAD_TAG_SIZE 16

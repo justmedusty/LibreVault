@@ -26,7 +26,8 @@ namespace Encryption {
      */
     void lock_memory() {
 #if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
-        if (mlockall(MCL_CURRENT | MCL_FUTURE) <= 0) {
+        //THIS SHOULD HAVE MCL_CURRENT AND MCL_FUTURE FOR NOW JUST MCL FUTURE SINCE IT NEEDS ADDDED CAPS FOR BOTH
+        if (mlockall( MCL_FUTURE) < 0) {
             // lock all current and future pages into main memory
             std::cerr <<
                     "mlockall failed, exiting early for security purposes. Check memory availability/consumption and try again."
@@ -92,11 +93,11 @@ namespace Encryption {
     }
 
 
-    std::string EncryptionContext::get_signature(Defcon defconLevel) const {
+    std::string EncryptionContext::get_signature(Defcon current_defcon) const {
         std::string signature;
         std::string defcon;
 
-        switch (defconLevel) {
+        switch (current_defcon) {
             case Defcon::DEFCON1:
                 defcon = std::string{LIBREVAULT_DEFCON_1};
                 break;
@@ -168,6 +169,13 @@ namespace Encryption {
         }
 
         return true;
+    }
+
+
+    void EncryptionContext::decrypt_string(std::string ciphertext) {
+    }
+
+    void EncryptionContext::encrypt_string(std::string secret) {
     }
 
     void EncryptionContext::receive_passphrase() {
