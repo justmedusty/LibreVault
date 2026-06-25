@@ -75,7 +75,7 @@ std::vector<uint8_t> derive_key(
 
     uint32_t m_cost = static_cast<uint32_t>(argon2MB * 1024); // Argon2 takes KB for the m_cost param
 
-    uint32_t iterations = 8; // This is extreme but it is okay for a local KV vault to go tin foil hat on the security
+    uint32_t iterations = ARGON2_ROUNDS;
     uint32_t parallelism = std::thread::hardware_concurrency(); // num lanes will be the number of cores on the system
     OSSL_PARAM params[] = {
         OSSL_PARAM_construct_octet_string("pass", const_cast<char *>(password.data()), password.size()),

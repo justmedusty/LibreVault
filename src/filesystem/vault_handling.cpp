@@ -9,7 +9,7 @@
 std::string get_decfon_signature(std::string &vault_file_path, Defcon defcon) {
 }
 
-void is_vault_setup(std::string &vault_file_path) {
+bool is_vault_setup(std::filesystem::path  &vault_file_path) {
     std::ifstream vault(vault_file_path);
     if (!vault.is_open()) {
         std::cerr << "Could not open vault file : " << vault_file_path << std::endl;
@@ -60,7 +60,7 @@ void is_vault_setup(std::string &vault_file_path) {
         std::cerr << vault_file_path <<
                 " contains a vault file, but it is invalid! You will need to fix it or reset your vault!" <<
                 std::endl;
-        exit(1);
+        return false;
     }
 
     if (found > 0 || sig > 0) {
@@ -68,6 +68,7 @@ void is_vault_setup(std::string &vault_file_path) {
                 "Not all defcon levels have an associated verification signature. This will not prevent this program from running, but you will need to set a password for any DEFCON section without an associated signature."
                 << std::endl;
     }
+    return true;
 }
 
 void write_entry(std::string &key, std::string &value, ConfigRepresentation &config) {

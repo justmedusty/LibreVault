@@ -5,6 +5,7 @@
 #ifndef LIBREVAULT_KEY_DERIVATION_H
 #define LIBREVAULT_KEY_DERIVATION_H
 #define KDF_SALT_SIZE_BYTES 16
+#define ARGON2_ROUNDS 14 // absolute tin foil hat-tery but that is good
 
 #include <openssl/evp.h>
 #include <openssl/rand.h>
