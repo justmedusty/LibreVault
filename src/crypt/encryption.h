@@ -2,8 +2,8 @@
 // Created by dustyn on 6/14/26.
 //
 
-#ifndef LIBREVAULT_ENCRYPTION_H
-#define LIBREVAULT_ENCRYPTION_H
+#ifndef CITADEL_ENCRYPTION_H
+#define CITADEL_ENCRYPTION_H
 #include <string>
 #include <vector>
 #include "openssl/aes.h"
@@ -63,4 +63,4 @@ namespace Encryption {
         [[nodiscard]] std::string get_signature() const;
     };
 };
-#endif //LIBREVAULT_ENCRYPTION_H
+#endif //CITADEL_ENCRYPTION_H

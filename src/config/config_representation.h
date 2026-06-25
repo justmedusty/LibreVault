@@ -2,8 +2,8 @@
 // Created by dustyn on 6/14/26.
 //
 
-#ifndef LIBREVAULT_CONFIG_REPRESENTATION_H
-#define LIBREVAULT_CONFIG_REPRESENTATION_H
+#ifndef CITADEL_CONFIG_REPRESENTATION_H
+#define CITADEL_CONFIG_REPRESENTATION_H
 #include <filesystem>
 #include <vector>
 #include <iterator>
@@ -44,17 +44,17 @@ enum class EncryptionMode;
 /*
  *  Each section will have it's own password, this can let you pull more than 1 from a section in 1 operation.
  */
-#define LIBREVAULT_NUM_SECTIONS 5
-#define LIBREVAULT_DEFCON_1 "<DEFCON1>"
-#define LIBREVAULT_DEFCON_2 "<DEFCON2>"
-#define LIBREVAULT_DEFCON_3 "<DEFCON3>"
-#define LIBREVAULT_DEFCON_4 "<DEFCON4>"
-#define LIBREVAULT_DEFCON_5 "<DEFCON5>"
+#define CITADEL_NUM_SECTIONS 5
+#define CITADEL_DEFCON_1 "<DEFCON1>"
+#define CITADEL_DEFCON_2 "<DEFCON2>"
+#define CITADEL_DEFCON_3 "<DEFCON3>"
+#define CITADEL_DEFCON_4 "<DEFCON4>"
+#define CITADEL_DEFCON_5 "<DEFCON5>"
 
-#define LIBREVAULT_VAULT_SIG_START "<-- sig="
+#define CITADEL_VAULT_SIG_START "<-- sig="
 //The encrypted string to be placed under each defcon header to be a source of truth for the correctness of a password against a DEFCON level
-#define LIBREVAULT_ENCRYPTION_STRING "BECAUSE_I_CHOOSE_TO"
-#define LIBREVAULT_VAULT_SIG_END " -->"
+#define CITADEL_ENCRYPTION_STRING "BECAUSE_I_CHOOSE_TO"
+#define CITADEL_VAULT_SIG_END " -->"
 
 enum class EncryptionMode {
     AES_256_GCM,
@@ -128,4 +128,4 @@ private:
 };
 
 
-#endif //LIBREVAULT_CONFIG_REPRESENTATION_H
+#endif //CITADEL_CONFIG_REPRESENTATION_H

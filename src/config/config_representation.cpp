@@ -60,7 +60,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
     }
 
     if (this->key.empty()) {
-        std::cerr << "You have not specified a key! You must provide a key! Try librevault -h for help!" << std::endl;
+        std::cerr << "You have not specified a key! You must provide a key! Try citadel -h for help!" << std::endl;
         exit(1);
     }
 
@@ -70,7 +70,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
             OPENSSL_cleanse(this->value.data(), this->value.size());
         }
         std::cerr <<
-                "You have no specified a value and are trying to encrypt! You must provide a value! Try librevault -h for help!"
+                "You have no specified a value and are trying to encrypt! You must provide a value! Try citadel -h for help!"
                 <<
                 std::endl;
         exit(1);
@@ -78,7 +78,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
 
     if (!this->vault_file_path.empty() && !std::filesystem::exists(this->vault_file_path)) {
         std::cerr << "You have specified a vault file and the file does not exist! See : " << this->vault_file_path
-                << "Try librevault -h for help!" <<
+                << "Try citadel -h for help!" <<
                 std::endl;
         if (this->value != "") {
             //cleanse that shit

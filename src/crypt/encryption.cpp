@@ -106,19 +106,19 @@ namespace Encryption {
 
         switch (this->current_defcon) {
             case Defcon::DEFCON1:
-                defcon = std::string{LIBREVAULT_DEFCON_1};
+                defcon = std::string{CITADEL_DEFCON_1};
                 break;
             case Defcon::DEFCON2:
-                defcon = std::string{LIBREVAULT_DEFCON_2};
+                defcon = std::string{CITADEL_DEFCON_2};
                 break;
             case Defcon::DEFCON3:
-                defcon = std::string{LIBREVAULT_DEFCON_3};
+                defcon = std::string{CITADEL_DEFCON_3};
                 break;
             case Defcon::DEFCON4:
-                defcon = std::string{LIBREVAULT_DEFCON_4};
+                defcon = std::string{CITADEL_DEFCON_4};
                 break;
             case Defcon::DEFCON5:
-                defcon = std::string{LIBREVAULT_DEFCON_5};
+                defcon = std::string{CITADEL_DEFCON_5};
                 break;
             default:
                 return "";
@@ -135,8 +135,8 @@ namespace Encryption {
             }
 
             if (here) {
-                std::string sig = line.substr(sizeof(LIBREVAULT_VAULT_SIG_START),
-                                              line.size() - sizeof(LIBREVAULT_VAULT_SIG_END));
+                std::string sig = line.substr(sizeof(CITADEL_VAULT_SIG_START),
+                                              line.size() - sizeof(CITADEL_VAULT_SIG_END));
                 std::cout << "SIG :" << sig << std::endl;
                 return sig;
             }
@@ -146,7 +146,7 @@ namespace Encryption {
     }
 
     bool EncryptionContext::verify_defcon_signature() {
-        std::string expected = LIBREVAULT_ENCRYPTION_STRING;
+        std::string expected = CITADEL_ENCRYPTION_STRING;
 
         std::string signature = this->get_signature();
         const std::string iv = Base64::base64_decode(signature).substr(0,AES_GCM_IV_LEN);

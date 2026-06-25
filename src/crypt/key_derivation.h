@@ -2,8 +2,8 @@
 // Created by dustyn on 6/18/26.
 //
 
-#ifndef LIBREVAULT_KEY_DERIVATION_H
-#define LIBREVAULT_KEY_DERIVATION_H
+#ifndef CITADEL_KEY_DERIVATION_H
+#define CITADEL_KEY_DERIVATION_H
 #define KDF_SALT_SIZE_BYTES 16
 #define ARGON2_ROUNDS 14 // absolute tin foil hat-tery but that is good
 
@@ -20,4 +20,4 @@ int derive_key(
     std::vector<std::byte> &key);
 
 std::vector<uint8_t> generate_salt();
-#endif //LIBREVAULT_KEY_DERIVATION_H
+#endif //CITADEL_KEY_DERIVATION_H

@@ -2,8 +2,8 @@
 // Created by dustyn on 6/16/26.
 //
 
-#ifndef LIBREVAULT_VAULT_HANDLING_H
-#define LIBREVAULT_VAULT_HANDLING_H
+#ifndef CITADEL_VAULT_HANDLING_H
+#define CITADEL_VAULT_HANDLING_H
 #include <string>
 #include "config/config_representation.h"
 #include <sstream>
@@ -28,4 +28,4 @@ void delete_entry(std::string &key, ConfigRepresentation &config);
 
 void create_vault(std::filesystem::path &vault_path);
 
-#endif //LIBREVAULT_VAULT_HANDLING_H
+#endif //CITADEL_VAULT_HANDLING_H

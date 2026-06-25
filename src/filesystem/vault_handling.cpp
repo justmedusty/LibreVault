@@ -22,33 +22,33 @@ bool is_vault_setup(std::filesystem::path &vault_file_path) {
 
     while (std::getline(vault, line)) {
         if (line.starts_with('<')) {
-            if (line == LIBREVAULT_DEFCON_1) {
+            if (line == CITADEL_DEFCON_1) {
                 found++;
                 continue;
             }
 
-            if (line == LIBREVAULT_DEFCON_2) {
+            if (line == CITADEL_DEFCON_2) {
                 found++;
                 continue;
             }
 
-            if (line == LIBREVAULT_DEFCON_3) {
+            if (line == CITADEL_DEFCON_3) {
                 found++;
                 continue;
             }
 
-            if (line == LIBREVAULT_DEFCON_4) {
+            if (line == CITADEL_DEFCON_4) {
                 found++;
                 continue;
             }
 
-            if (line == LIBREVAULT_DEFCON_5) {
+            if (line == CITADEL_DEFCON_5) {
                 found++;
                 continue;
             }
         }
 
-        if (line.starts_with(LIBREVAULT_VAULT_SIG_START)) {
+        if (line.starts_with(CITADEL_VAULT_SIG_START)) {
             /*
              *  We won't check that the whole signature is there , it will be unless someone is playing around with their own vault file
              */
@@ -80,7 +80,7 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
 
     if (std::filesystem::file_size(config.vault_file_path) > MAXIMUM_VAULT_SIZE) {
         std::cerr << std::filesystem::file_size(config.vault_file_path)
-                << " is too large for LibreVault to handle. Please investigate." << std::endl;
+                << " is too large for Citadel to handle. Please investigate." << std::endl;
         exit(1);
     }
 
@@ -117,19 +117,19 @@ void write_signature(std::string& signature, Defcon defcon, ConfigRepresentation
     std::string decfon_string;
     switch (defcon) {
         case Defcon::DEFCON1:
-            decfon_string = LIBREVAULT_DEFCON_1;
+            decfon_string = CITADEL_DEFCON_1;
             break;
         case Defcon::DEFCON2:
-            decfon_string = LIBREVAULT_DEFCON_2;
+            decfon_string = CITADEL_DEFCON_2;
             break;
         case Defcon::DEFCON3:
-            decfon_string = LIBREVAULT_DEFCON_3;
+            decfon_string = CITADEL_DEFCON_3;
             break;
         case Defcon::DEFCON4:
-            decfon_string = LIBREVAULT_DEFCON_4;
+            decfon_string = CITADEL_DEFCON_4;
             break;
         case Defcon::DEFCON5:
-            decfon_string = LIBREVAULT_DEFCON_5;
+            decfon_string = CITADEL_DEFCON_5;
             break;
     }
 
@@ -141,7 +141,7 @@ void write_signature(std::string& signature, Defcon defcon, ConfigRepresentation
 
     if (std::filesystem::file_size(config.vault_file_path) > MAXIMUM_VAULT_SIZE) {
         std::cerr << std::filesystem::file_size(config.vault_file_path)
-                << " is too large for LibreVault to handle. Please investigate." << std::endl;
+                << " is too large for Citadel to handle. Please investigate." << std::endl;
         exit(1);
     }
 
@@ -171,7 +171,7 @@ void write_signature(std::string& signature, Defcon defcon, ConfigRepresentation
          *  This signature is your anchor of truth for the password for the whole section, it just lets us ensure that the password being used matches the defcon section password
          */
         if (found == true) {
-            temp << LIBREVAULT_VAULT_SIG_START << signature << LIBREVAULT_VAULT_SIG_END << std::endl;
+            temp << CITADEL_VAULT_SIG_START << signature << CITADEL_VAULT_SIG_END << std::endl;
             found = false;
         }
 
@@ -199,7 +199,7 @@ Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &co
 
     if (std::filesystem::file_size(config.vault_file_path) > MAXIMUM_VAULT_SIZE) {
         std::cerr << std::filesystem::file_size(config.vault_file_path) <<
-                " is too large for LibreVault to handle. Please investigate." << std::endl;
+                " is too large for Citadel to handle. Please investigate." << std::endl;
         exit(1);
     }
 
@@ -208,32 +208,32 @@ Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &co
     Defcon defcon;
 
     while (std::getline(vault, line)) {
-        if (line == LIBREVAULT_DEFCON_1) {
+        if (line == CITADEL_DEFCON_1) {
             defcon = Defcon::DEFCON1;
             continue;
         }
 
-        if (line == LIBREVAULT_DEFCON_2) {
+        if (line == CITADEL_DEFCON_2) {
             defcon = Defcon::DEFCON2;
             continue;
         }
 
-        if (line == LIBREVAULT_DEFCON_3) {
+        if (line == CITADEL_DEFCON_3) {
             defcon = Defcon::DEFCON3;
             continue;
         }
-        if (line == LIBREVAULT_DEFCON_4) {
+        if (line == CITADEL_DEFCON_4) {
             defcon = Defcon::DEFCON4;
             continue;
         }
-        if (line == LIBREVAULT_DEFCON_5) {
+        if (line == CITADEL_DEFCON_5) {
             defcon = Defcon::DEFCON5;
             continue;
         }
 
-        if (line.starts_with(LIBREVAULT_VAULT_SIG_START)) {
-            sig = line.replace(line.find(LIBREVAULT_VAULT_SIG_START), sizeof(LIBREVAULT_VAULT_SIG_START) - 1, "");
-            sig = line.replace(line.find(LIBREVAULT_VAULT_SIG_END), sizeof(LIBREVAULT_VAULT_SIG_END) - 1, "");
+        if (line.starts_with(CITADEL_VAULT_SIG_START)) {
+            sig = line.replace(line.find(CITADEL_VAULT_SIG_START), sizeof(CITADEL_VAULT_SIG_START) - 1, "");
+            sig = line.replace(line.find(CITADEL_VAULT_SIG_END), sizeof(CITADEL_VAULT_SIG_END) - 1, "");
         }
 
         if (line.starts_with('#')) // support comments
@@ -265,7 +265,7 @@ void delete_entry(std::string &key, ConfigRepresentation &config) {
 
     if (std::filesystem::file_size(config.vault_file_path) > MAXIMUM_VAULT_SIZE) {
         std::cerr << std::filesystem::file_size(config.vault_file_path)
-                << " is too large for LibreVault to handle. Please investigate." << std::endl;
+                << " is too large for Citadel to handle. Please investigate." << std::endl;
         exit(1);
     }
 
@@ -324,11 +324,11 @@ void create_vault(std::filesystem::path &vault_path) {
         exit(1);
     }
 
-    vault << "#LibreVault vault file" << std::endl;
-    vault << LIBREVAULT_DEFCON_1 << std::endl;
-    vault << LIBREVAULT_DEFCON_2 << std::endl;
-    vault << LIBREVAULT_DEFCON_3 << std::endl;
-    vault << LIBREVAULT_DEFCON_4 << std::endl;
-    vault << LIBREVAULT_DEFCON_5 << std::endl;
+    vault << "#Citadel vault file" << std::endl;
+    vault << CITADEL_DEFCON_1 << std::endl;
+    vault << CITADEL_DEFCON_2 << std::endl;
+    vault << CITADEL_DEFCON_3 << std::endl;
+    vault << CITADEL_DEFCON_4 << std::endl;
+    vault << CITADEL_DEFCON_5 << std::endl;
     vault.close();
 }
