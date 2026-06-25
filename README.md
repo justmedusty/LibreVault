@@ -1,7 +1,7 @@
 # Citadel
 
 ## Key value encrypted storage
-The vault has 5 levels, each level uses progressively more tin-foil hate argon2 parameters up to the maximum of DEFCON1. <br>
+The vault has 5 levels, each level uses progressively more tin-foil hat argon2 parameters up to the maximum of DEFCON1. <br>
 5 levels of the vault: <br>
 DEFCON1 -> Most secure, use strongest password. Has absolutely insane tin-foil hate argon2 parameters for both memory and iters.<br>
 DEFCON2 -> Very secure, use very strong password <br>
