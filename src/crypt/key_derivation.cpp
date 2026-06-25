@@ -55,9 +55,10 @@ uint64_t get_system_memory() {
 #endif
 }
 
-std::vector<uint8_t> derive_key(
+int derive_key(
     const std::string &password,
-    std::vector<uint8_t> &salt) // 32 bytes = AES-256
+    std::vector<uint8_t> &salt,
+    std::vector<std::byte> &key) // 32 bytes = AES-256
 {
     auto keylen = AES_256_KEY_SIZE_BYTES;
     /*
@@ -99,9 +100,7 @@ std::vector<uint8_t> derive_key(
         exit(1);
     }
 
-    std::vector<uint8_t> key(keylen);
-    int ret;
-    if ((ret = EVP_KDF_derive(ctx, key.data(), keylen, params)) != 1) {
+    if (int ret; (ret = EVP_KDF_derive(ctx, reinterpret_cast<unsigned char *>(key.data()), keylen, params)) != 1) {
         std::cerr << "EVP_KDF_derive failed: "
                 << ERR_error_string(ERR_get_error(), nullptr) << std::endl;
         EVP_KDF_CTX_free(ctx);
@@ -109,7 +108,7 @@ std::vector<uint8_t> derive_key(
     }
 
     EVP_KDF_CTX_free(ctx);
-    return key;
+    return 1;
 }
 
 //generate a random salt (do this once, store alongside ciphertext)

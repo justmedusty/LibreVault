@@ -10,11 +10,11 @@
 BOOST_AUTO_TEST_CASE(aes_256_gcm_e) {
     const char *plaintext = "Here is some plaintext for AES 256 GCM testing";
     int len = strlen(plaintext);
-    uint8_t *key = static_cast<uint8_t *>(malloc(32));
-    uint8_t *iv = static_cast<uint8_t *>(malloc(AES_GCM_IV_LEN));
-    uint8_t *ciphertext = static_cast<uint8_t *>(malloc(len));
+    auto *key = static_cast<uint8_t *>(malloc(32));
+    auto *iv = static_cast<uint8_t *>(malloc(AES_GCM_IV_LEN));
+    auto *ciphertext = static_cast<uint8_t *>(malloc(len));
     memset(ciphertext, '\0', len);
-    uint8_t *tag = static_cast<uint8_t *>(malloc(AES_GCM_AEAD_TAG_SIZE));
+    auto *tag = static_cast<uint8_t *>(malloc(AES_GCM_AEAD_TAG_SIZE));
     std::cout << "len is " << len << std::endl;
     RAND_bytes(key, 32);
     RAND_bytes(iv, AES_GCM_IV_LEN);
@@ -39,11 +39,11 @@ BOOST_AUTO_TEST_CASE(aes_256_gcm_e) {
 BOOST_AUTO_TEST_CASE(aes_256_gcm_e_then_d) {
     const char *plaintext = "Here is some plaintext for AES 256 GCM testing";
     int len = strlen(plaintext);
-    uint8_t *key = static_cast<uint8_t *>(malloc(32));
-    uint8_t *iv = static_cast<uint8_t *>(malloc(AES_GCM_IV_LEN));
-    uint8_t *ciphertext = static_cast<uint8_t *>(malloc(len));
+    auto *key = static_cast<uint8_t *>(malloc(32));
+    auto *iv = static_cast<uint8_t *>(malloc(AES_GCM_IV_LEN));
+    auto *ciphertext = static_cast<uint8_t *>(malloc(len));
     memset(ciphertext, '\0', len);
-    uint8_t *tag = static_cast<uint8_t *>(malloc(AES_GCM_AEAD_TAG_SIZE));
+    auto *tag = static_cast<uint8_t *>(malloc(AES_GCM_AEAD_TAG_SIZE));
     std::cout << "len is " << len << std::endl;
     RAND_bytes(key, 32);
     RAND_bytes(iv, AES_GCM_IV_LEN);
@@ -74,11 +74,11 @@ BOOST_AUTO_TEST_CASE(aes_256_gcm_e_then_d) {
 BOOST_AUTO_TEST_CASE(aes_256_gcm_e_then_d_then_check_plaintext) {
     const char *plaintext = "Here is some plaintext for AES 256 GCM testing";
     int len = strlen(plaintext);
-    uint8_t *key = static_cast<uint8_t *>(malloc(32));
-    uint8_t *iv = static_cast<uint8_t *>(malloc(AES_GCM_IV_LEN));
-    uint8_t *ciphertext = static_cast<uint8_t *>(malloc(len));
+    auto *key = static_cast<uint8_t *>(malloc(32));
+    auto *iv = static_cast<uint8_t *>(malloc(AES_GCM_IV_LEN));
+    auto *ciphertext = static_cast<uint8_t *>(malloc(len));
     memset(ciphertext, '\0', len);
-    uint8_t *tag = static_cast<uint8_t *>(malloc(AES_GCM_AEAD_TAG_SIZE));
+    auto *tag = static_cast<uint8_t *>(malloc(AES_GCM_AEAD_TAG_SIZE));
     std::cout << "len is " << len << std::endl;
     RAND_bytes(key, 32);
     RAND_bytes(iv, AES_GCM_IV_LEN);

@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE(base64_encoding) {
 BOOST_AUTO_TEST_CASE(argon2) {
     std::string password = "superSecretPassWoRd!@#$%^&";
     std::vector<uint8_t> salt = generate_salt();
-
-    auto derived_key = derive_key(password, salt);
+    std::vector<std::byte> derived_key(32);
+    auto ret1 = derive_key(password, salt, derived_key);
 
     std::string key_str(derived_key.begin(), derived_key.end());
     std::string b64_key = Base64::base64_encode(key_str);
@@ -77,9 +77,10 @@ BOOST_AUTO_TEST_CASE(argon2_diff_passwd_check) {
     std::string password = "SuperSecretPassWoRd!@#$%^&";
     std::string password2 = "superSecretPassWoRd!@#$%^&";
     std::vector<uint8_t> salt = generate_salt();
-
-    auto derived_key = derive_key(password, salt);
-    auto derived_key2 = derive_key(password2, salt);
+    std::vector<std::byte> derived_key(32);
+    std::vector<std::byte> derived_key2(32);
+    auto ret1 = derive_key(password, salt, derived_key);
+    auto ret2 = derive_key(password2, salt, derived_key2);
 
     std::string key_str(derived_key.begin(), derived_key.end());
     std::string key_str2(derived_key2.begin(), derived_key2.end());
@@ -96,8 +97,10 @@ BOOST_AUTO_TEST_CASE(argon2_same_passwd_check) {
     std::string password = "SuperSecretPassWoRd!@#$%^&";
     std::vector<uint8_t> salt = generate_salt();
 
-    auto derived_key = derive_key(password, salt);
-    auto derived_key2 = derive_key(password, salt);
+    std::vector<std::byte> derived_key(32);
+    std::vector<std::byte> derived_key2(32);
+    auto ret1 = derive_key(password, salt, derived_key);
+    auto ret2 = derive_key(password, salt, derived_key2);
 
     std::string key_str(derived_key.begin(), derived_key.end());
     std::string key_str2(derived_key2.begin(), derived_key2.end());

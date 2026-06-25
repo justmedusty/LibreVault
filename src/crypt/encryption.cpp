@@ -14,6 +14,7 @@
 #include <openssl/rand.h>
 
 #include "base64.h"
+#include "key_derivation.h"
 #include "algo/aes.h"
 #ifdef WIN32
 #include <windows.h>
@@ -178,11 +179,20 @@ namespace Encryption {
     }
 
 
-    void EncryptionContext::decrypt_string(std::string ciphertext) {
+    void EncryptionContext::decrypt_string(std::string &ciphertext) {
         std::string decoded = Base64::base64_decode(ciphertext);
-        std::string iv = decoded.substr(0, AES_GCM_IV_LEN);
-        std::string tag = decoded.substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
-        std::string cipherttxt = decoded.substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, ciphertext.size());
+        std::string iv = decoded.substr(KDF_SALT_SIZE_BYTES, AES_GCM_IV_LEN);
+        std::string tag = decoded.substr(KDF_SALT_SIZE_BYTES + AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
+        std::string cipherttxt = decoded.substr(KDF_SALT_SIZE_BYTES + AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE,
+                                                ciphertext.size());
+
+        std::string salt = decoded.substr(0,KDF_SALT_SIZE_BYTES);
+
+        std::vector<uint8_t> salt_vec(salt.begin(), salt.end());
+
+
+        derive_key(this->passphrase, salt_vec, this->key_material);
+
 
         int i = 0;
         for (const auto &c: iv) {

@@ -16,9 +16,11 @@
 
 
 
-bool is_vault_setup(std::filesystem::path  &vault_file_path);
+bool is_vault_setup(std::filesystem::path &vault_file_path);
 
 void write_entry(std::string &key, std::string &value, ConfigRepresentation &config);
+
+void write_signature(std::string &signature, Defcon defcon, ConfigRepresentation &config);
 
 Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &config);
 

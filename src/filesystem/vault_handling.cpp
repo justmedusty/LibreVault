@@ -9,7 +9,7 @@
 std::string get_decfon_signature(std::string &vault_file_path, Defcon defcon) {
 }
 
-bool is_vault_setup(std::filesystem::path  &vault_file_path) {
+bool is_vault_setup(std::filesystem::path &vault_file_path) {
     std::ifstream vault(vault_file_path);
     if (!vault.is_open()) {
         std::cerr << "Could not open vault file : " << vault_file_path << std::endl;
@@ -113,12 +113,77 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
     std::filesystem::rename(temp_path, config.vault_file_path);
 }
 
-static bool replace(std::string &str, const std::string &from, const std::string &to) {
-    size_t start_pos = str.find(from);
-    if (start_pos == std::string::npos)
-        return false;
-    str.replace(start_pos, from.length(), to);
-    return true;
+void write_signature(std::string& signature, Defcon defcon, ConfigRepresentation &config) {
+    std::string decfon_string;
+    switch (defcon) {
+        case Defcon::DEFCON1:
+            decfon_string = LIBREVAULT_DEFCON_1;
+            break;
+        case Defcon::DEFCON2:
+            decfon_string = LIBREVAULT_DEFCON_2;
+            break;
+        case Defcon::DEFCON3:
+            decfon_string = LIBREVAULT_DEFCON_3;
+            break;
+        case Defcon::DEFCON4:
+            decfon_string = LIBREVAULT_DEFCON_4;
+            break;
+        case Defcon::DEFCON5:
+            decfon_string = LIBREVAULT_DEFCON_5;
+            break;
+    }
+
+    std::ifstream vault(config.vault_file_path);
+    if (!vault.is_open()) {
+        std::cerr << "Could not open vault file: " << config.vault_file_path << std::endl;
+        exit(1);
+    }
+
+    if (std::filesystem::file_size(config.vault_file_path) > MAXIMUM_VAULT_SIZE) {
+        std::cerr << std::filesystem::file_size(config.vault_file_path)
+                << " is too large for LibreVault to handle. Please investigate." << std::endl;
+        exit(1);
+    }
+
+    std::filesystem::path temp_path = config.vault_file_path;
+    temp_path += ".tmp";
+    std::ofstream temp(temp_path);
+    if (!temp.is_open()) {
+        std::cerr << "Could not create temp file" << std::endl;
+        exit(1);
+    }
+
+    std::string line;
+    bool found = false;
+
+    while (std::getline(vault, line)) {
+        if (line == decfon_string) {
+            found = true;
+            continue;
+        }
+
+
+        /*
+         *  This will trip right after the defcon level which is what we want to do
+         *  <DEFCON1>
+         *  <-- sig=yoursignaturehere -->
+         *
+         *  This signature is your anchor of truth for the password for the whole section, it just lets us ensure that the password being used matches the defcon section password
+         */
+        if (found == true) {
+            temp << LIBREVAULT_VAULT_SIG_START << signature << LIBREVAULT_VAULT_SIG_END << std::endl;
+            found = false;
+        }
+
+        temp << line << '\n';
+    }
+
+
+    vault.close();
+    temp.close();
+
+    std::filesystem::remove(config.vault_file_path);
+    std::filesystem::rename(temp_path, config.vault_file_path);
 }
 
 /*

@@ -24,6 +24,7 @@ namespace Encryption {
         std::string passphrase;
         std::vector<std::byte> key_material;
         std::vector<std::byte> iv;
+        std::vector<std::byte> kdf_salt;
         std::string secret;
         std::string defcon_signature;
         Defcon current_defcon;
@@ -32,9 +33,9 @@ namespace Encryption {
 
         void receive_passphrase();
 
-        void decrypt_string(std::string ciphertext);
+        void decrypt_string(std::string &ciphertext);
 
-        std::string encrypt_string(std::string secret);
+        std::string encrypt_string(std::string &secret);
 
         explicit EncryptionContext(const ConfigRepresentation &config) {
             this->current_defcon = config.defcon;
