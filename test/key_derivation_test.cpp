@@ -79,7 +79,9 @@ BOOST_AUTO_TEST_CASE(argon2) {
 
     auto derived_key = derive_key(password, salt);
 
-
+    std::string key_str(derived_key.begin(), derived_key.end());
+    std::string b64_key = Base64::base64_encode(key_str);
+    std::cout << "Base64 key: " << b64_key << std::endl;
 
     BOOST_CHECK_GT(derived_key.size(), 0);
 }
