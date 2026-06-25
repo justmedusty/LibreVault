@@ -7,7 +7,7 @@
 
 BOOST_AUTO_TEST_CASE(always_passes)
 {
-    BOOST_CHECK(true);
+
 }
 
 BOOST_AUTO_TEST_CASE(simple_equality)

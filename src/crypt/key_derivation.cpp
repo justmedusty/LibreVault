@@ -6,6 +6,8 @@
 #include <openssl/kdf.h>
 #include <sys/sysinfo.h>
 
+#include "algo/aes.h"
+
 //Platform agnostic get system memory, we are just doing this to ensure we arent going to absolutely shit their whole system down the
 //drain with our tinfoil hate argon2 parameters. 
 uint64_t get_system_memory() {
@@ -53,9 +55,9 @@ uint64_t get_system_memory() {
 
 std::vector<uint8_t> derive_key(
     const std::string &password,
-    std::vector<int8_t> &salt,
-    int keyLen = 32) // 32 bytes = AES-256
+    std::vector<int8_t> &salt) // 32 bytes = AES-256
 {
+    auto keylen = AES_256_KEY_SIZE_BYTES;
     /*
      *  We will define the iters for the user, we will do something compute heavy to be as secure as possible while remaining within an
      *  interactive friendly timeframe.
@@ -84,7 +86,7 @@ std::vector<uint8_t> derive_key(
     std::vector<uint8_t> key;
 
     EVP_KDF_CTX *ctx = EVP_KDF_CTX_new(kdf);
-    auto ret = EVP_KDF_derive(ctx, key.data(), keyLen, params);
+    auto ret = EVP_KDF_derive(ctx, key.data(), keylen, params);
 
     if (!ret) {
         std::cerr << "EVP_KDF_derive failed" << std::endl;
@@ -96,7 +98,7 @@ std::vector<uint8_t> derive_key(
 
 //generate a random salt (do this once, store alongside ciphertext)
 std::vector<uint8_t> generate_salt() {
-    int len = 16;
+    int len = KDF_SALT_SIZE_BYTES;
     std::vector<uint8_t> salt(len);
     RAND_bytes(salt.data(), len);
     return salt;

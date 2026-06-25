@@ -3,17 +3,58 @@
 //
 #define BOOST_TEST_MODULE KeyDerivationTest
 #include <boost/test/unit_test.hpp>
+#include "crypt/key_derivation.h"
+#include "crypt/base64.h"
 
-BOOST_AUTO_TEST_CASE(always_passes) {
-    BOOST_CHECK(true);
+BOOST_AUTO_TEST_CASE(check_salt_Size) {
+    auto salt = generate_salt();
+    BOOST_CHECK_EQUAL(salt.size(), KDF_SALT_SIZE_BYTES);
 }
 
-BOOST_AUTO_TEST_CASE(simple_equality) {
-    BOOST_CHECK_EQUAL(2 + 2, 4);
+BOOST_AUTO_TEST_CASE(check_salt_contents) {
+    const auto salt = generate_salt();
+    const auto salt2 = generate_salt();
+
+    BOOST_CHECK_EQUAL(salt.size(), salt2.size());
 }
 
-BOOST_AUTO_TEST_CASE(string_compare) {
-    std::string a = "hello";
-    std::string b = "hello";
-    BOOST_CHECK_EQUAL(a, b);
+
+BOOST_AUTO_TEST_CASE(check_salt_difference) {
+    const auto salt = generate_salt();
+    const auto salt2 = generate_salt();
+
+    auto equal = true;
+    for (int i = 0; i < salt2.size(); i++) {
+        if (salt2[i] != salt[i]) equal = false;
+        std::cout << salt[i] << ':' << salt2[i] << std::endl;
+    }
+
+    BOOST_CHECK_EQUAL(equal, false);
+}
+
+BOOST_AUTO_TEST_CASE(base64_test) {
+    std::string rand(100, '\0');
+    const auto rand_ptr = reinterpret_cast<unsigned char *>(rand.data());
+    RAND_bytes(rand_ptr, 99);
+
+    std::string str1 = Base64::base64_encode(rand);
+    std::string str2 = Base64::base64_encode(rand);
+
+    std::cout << str1 << " : " << str2 << std::endl;
+
+    BOOST_CHECK_EQUAL(str1, str2);
+}
+
+
+BOOST_AUTO_TEST_CASE(base64_encoding) {
+    std::string data = "HELLO WOW THIS IS A TEST STRING";
+
+
+    std::string str1 = Base64::base64_encode(data);
+    std::string str2 = Base64::base64_decode(str1);
+
+
+    std::cout << data << " : " << str1 << " : " << str2 << std::endl;
+
+    BOOST_CHECK_EQUAL(data, str2);
 }

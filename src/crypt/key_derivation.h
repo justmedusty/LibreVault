@@ -13,5 +13,10 @@
 #include <string>
 #include <thread>
 
+std::vector<uint8_t> derive_key(
+    const std::string &password,
+    std::vector<int8_t> &salt,
+    int keyLen = 32);
+
 std::vector<uint8_t> generate_salt();
 #endif //LIBREVAULT_KEY_DERIVATION_H

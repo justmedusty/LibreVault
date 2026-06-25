@@ -7,6 +7,7 @@
 
 #define AES_GCM_IV_LEN 12
 #define AES_GCM_AEAD_TAG_SIZE 16
+#define AES_256_KEY_SIZE_BYTES 32
 
 bool aes_256_gcm_encrypt(unsigned char *plaintext, int plaintext_len, const unsigned char *key,
                          const unsigned char *iv, unsigned char *ciphertext, int *ciphertext_len, unsigned char *tag);
