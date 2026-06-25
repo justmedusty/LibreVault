@@ -91,3 +91,21 @@ BOOST_AUTO_TEST_CASE(argon2_diff_passwd_check) {
 
     BOOST_CHECK_NE(b64_key, b64_key2);
 }
+
+BOOST_AUTO_TEST_CASE(argon2_same_passwd_check) {
+    std::string password = "SuperSecretPassWoRd!@#$%^&";
+    std::vector<uint8_t> salt = generate_salt();
+
+    auto derived_key = derive_key(password, salt);
+    auto derived_key2 = derive_key(password, salt);
+
+    std::string key_str(derived_key.begin(), derived_key.end());
+    std::string key_str2(derived_key2.begin(), derived_key2.end());
+    std::string b64_key = Base64::base64_encode(key_str);
+    std::string b64_key2 = Base64::base64_encode(key_str2);
+    std::cout << "Base64 key 1: " << b64_key << std::endl;
+    std::cout << "Base64 key 2: " << b64_key2 << std::endl;
+
+
+    BOOST_CHECK_EQUAL(b64_key, b64_key2);
+}

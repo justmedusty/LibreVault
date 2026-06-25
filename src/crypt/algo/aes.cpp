@@ -123,5 +123,5 @@ err:
     EVP_CIPHER_free(cipher);
     EVP_CIPHER_CTX_free(ctx);
 
-    return false;
+    return ret;
 }

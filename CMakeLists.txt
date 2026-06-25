@@ -27,7 +27,7 @@ add_executable(LibreVaultParseTests
         test/parse_test.cpp
 )
 add_executable(LibreVaultEncryptionTests
-        test/parse_test.cpp
+        test/encryption_test.cpp
 )
 
 add_executable(LibreVaultKeyDerivationTests
