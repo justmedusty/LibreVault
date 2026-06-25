@@ -4,6 +4,8 @@
 #define BOOST_TEST_MODULE KeyDerivationTest
 #include <boost/test/unit_test.hpp>
 #include "crypt/key_derivation.h"
+
+#include "config/config_representation.h"
 #include "crypt/base64.h"
 #include "crypt/algo/aes.h"
 
@@ -64,7 +66,7 @@ BOOST_AUTO_TEST_CASE(argon2) {
     std::string password = "superSecretPassWoRd!@#$%^&";
     std::vector<uint8_t> salt = generate_salt();
     std::vector<std::byte> derived_key(32);
-    auto ret1 = derive_key(password, salt, derived_key);
+    auto ret1 = derive_key(password, salt, derived_key, Defcon::DEFCON5);
 
     std::string key_str(derived_key.begin(), derived_key.end());
     std::string b64_key = Base64::base64_encode(key_str);
@@ -79,8 +81,9 @@ BOOST_AUTO_TEST_CASE(argon2_diff_passwd_check) {
     std::vector<uint8_t> salt = generate_salt();
     std::vector<std::byte> derived_key(32);
     std::vector<std::byte> derived_key2(32);
-    auto ret1 = derive_key(password, salt, derived_key);
-    auto ret2 = derive_key(password2, salt, derived_key2);
+
+    auto ret1 = derive_key(password, salt, derived_key, Defcon::DEFCON5);
+    auto ret2 = derive_key(password2, salt, derived_key2, Defcon::DEFCON5);
 
     std::string key_str(derived_key.begin(), derived_key.end());
     std::string key_str2(derived_key2.begin(), derived_key2.end());
@@ -99,8 +102,8 @@ BOOST_AUTO_TEST_CASE(argon2_same_passwd_check) {
 
     std::vector<std::byte> derived_key(32);
     std::vector<std::byte> derived_key2(32);
-    auto ret1 = derive_key(password, salt, derived_key);
-    auto ret2 = derive_key(password, salt, derived_key2);
+    auto ret1 = derive_key(password, salt, derived_key, Defcon::DEFCON5);
+    auto ret2 = derive_key(password, salt, derived_key2, Defcon::DEFCON5);
 
     std::string key_str(derived_key.begin(), derived_key.end());
     std::string key_str2(derived_key2.begin(), derived_key2.end());

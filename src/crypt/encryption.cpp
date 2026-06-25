@@ -191,7 +191,7 @@ namespace Encryption {
         std::vector<uint8_t> salt_vec(salt.begin(), salt.end());
 
 
-        derive_key(this->passphrase, salt_vec, this->key_material);
+        derive_key(this->passphrase, salt_vec, this->key_material,this->current_defcon);
 
 
         int i = 0;

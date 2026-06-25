@@ -9,6 +9,7 @@
 #include <sys/sysinfo.h>
 
 #include "algo/aes.h"
+#include "config/config_representation.h"
 
 //Platform agnostic get system memory, we are just doing this to ensure we arent going to absolutely shit their whole system down the
 //drain with our tinfoil hate argon2 parameters. 
@@ -58,7 +59,8 @@ uint64_t get_system_memory() {
 int derive_key(
     const std::string &password,
     std::vector<uint8_t> &salt,
-    std::vector<std::byte> &key) // 32 bytes = AES-256
+    std::vector<std::byte> &key,
+    Defcon defcon) // 32 bytes = AES-256
 {
     auto keylen = AES_256_KEY_SIZE_BYTES;
     /*
@@ -72,11 +74,37 @@ int derive_key(
     uint64_t argon2MB = systemMemory / 4;
 
     argon2MB = std::max(argon2MB, static_cast<uint64_t>(1024)); // floor: 1 GB
-    argon2MB = std::min(argon2MB, static_cast<uint64_t>(4096)); // ceil:  4 GB
+    argon2MB = std::min(argon2MB, static_cast<uint64_t>(12288)); // ceil:  12 GB
 
-    uint32_t m_cost = static_cast<uint32_t>(argon2MB * 1024); // Argon2 takes KB for the m_cost param
 
-    uint32_t iterations = ARGON2_ROUNDS;
+    int defcon_boost = 0; //How many rounds to boost from base rounds
+    int memory_divisor = 0; //The defcon level will change the memory and rounds
+
+    switch (defcon) {
+        case Defcon::DEFCON1:
+            defcon_boost = 24; //VERY high rounds boost, very good defense about CPU centric attacks
+            memory_divisor = 1; // max memory usage, divide by 1 , extremely good defense against GPU centric attacks
+            break;
+        case Defcon::DEFCON2:
+            defcon_boost = 12;
+            memory_divisor = 2;
+            break;
+        case Defcon::DEFCON3:
+            defcon_boost = 6;
+            memory_divisor = 4;
+            break;
+        case Defcon::DEFCON4:
+            defcon_boost = 3;
+            memory_divisor = 6;
+            break;
+        case Defcon::DEFCON5:
+            defcon_boost = 1; //Only +1 rounds boost, still high, but much much lower than DEFCON1
+            memory_divisor = 12;//Memory divided by 12, absolute max of 1GB on a machine with a lot of memory, minimum of 85MB.
+            break;
+    }
+    uint32_t m_cost = static_cast<uint32_t>((argon2MB * 1024) / memory_divisor); // Argon2 takes KB for the m_cost param
+
+    uint32_t iterations = ARGON2_ROUNDS_BASE + defcon_boost;
     uint32_t parallelism = std::thread::hardware_concurrency(); // num lanes will be the number of cores on the system
     OSSL_PARAM params[] = {
         OSSL_PARAM_construct_octet_string("pass", const_cast<char *>(password.data()), password.size()),
