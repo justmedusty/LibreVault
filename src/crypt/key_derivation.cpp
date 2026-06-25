@@ -3,6 +3,8 @@
 //
 
 #include "key_derivation.h"
+
+#include <openssl/err.h>
 #include <openssl/kdf.h>
 #include <sys/sysinfo.h>
 
@@ -55,7 +57,7 @@ uint64_t get_system_memory() {
 
 std::vector<uint8_t> derive_key(
     const std::string &password,
-    std::vector<int8_t> &salt) // 32 bytes = AES-256
+    std::vector<uint8_t> &salt) // 32 bytes = AES-256
 {
     auto keylen = AES_256_KEY_SIZE_BYTES;
     /*
@@ -63,36 +65,50 @@ std::vector<uint8_t> derive_key(
      *  interactive friendly timeframe.
      */
 
-    auto systemMemory = get_system_memory();
+    uint64_t systemMemory = get_system_memory() / (1024 * 1024);
+
 
     uint64_t argon2MB = systemMemory / 4;
 
-    argon2MB = std::max(argon2MB, static_cast<uint64_t>(1024)); // floor: 1G
+    argon2MB = std::max(argon2MB, static_cast<uint64_t>(1024)); // floor: 1 GB
     argon2MB = std::min(argon2MB, static_cast<uint64_t>(4096)); // ceil:  4 GB
 
-    auto m_cost = static_cast<uint32_t>(argon2MB * 1024); // Argon2 takes KB for the m_cost param
+    uint32_t m_cost = static_cast<uint32_t>(argon2MB * 1024); // Argon2 takes KB for the m_cost param
 
     uint32_t iterations = 8; // This is extreme but it is okay for a local KV vault to go tin foil hat on the security
     uint32_t parallelism = std::thread::hardware_concurrency(); // num lanes will be the number of cores on the system
     OSSL_PARAM params[] = {
-        OSSL_PARAM_construct_utf8_string("pass", const_cast<char *>(password.data()), password.size()),
+        OSSL_PARAM_construct_octet_string("pass", const_cast<char *>(password.data()), password.size()),
         OSSL_PARAM_construct_octet_string("salt", (salt.data()), salt.size()),
-        OSSL_PARAM_construct_uint32("m_cost", &m_cost), // KB of RAM
-        OSSL_PARAM_construct_uint32("t_cost", &iterations), // iterations
+        OSSL_PARAM_construct_uint32("memcost", &m_cost), // KB of RAM
+        OSSL_PARAM_construct_uint32("iter", &iterations), // iterations
         OSSL_PARAM_construct_uint32("lanes", &parallelism), // parallel threads
         OSSL_PARAM_END
     };
-    EVP_KDF *kdf = nullptr;
-    std::vector<uint8_t> key;
 
-    EVP_KDF_CTX *ctx = EVP_KDF_CTX_new(kdf);
-    auto ret = EVP_KDF_derive(ctx, key.data(), keylen, params);
-
-    if (!ret) {
-        std::cerr << "EVP_KDF_derive failed" << std::endl;
+    EVP_KDF *kdf = EVP_KDF_fetch(nullptr, "ARGON2ID", nullptr);
+    if (!kdf) {
+        std::cerr << "EVP_KDF_fetch failed" << std::endl;
         exit(1);
     }
 
+    EVP_KDF_CTX *ctx = EVP_KDF_CTX_new(kdf);
+    EVP_KDF_free(kdf);
+    if (!ctx) {
+        std::cerr << "EVP_KDF_CTX_new failed" << std::endl;
+        exit(1);
+    }
+
+    std::vector<uint8_t> key(keylen);
+    int ret;
+    if ((ret = EVP_KDF_derive(ctx, key.data(), keylen, params)) != 1) {
+        std::cerr << "EVP_KDF_derive failed: "
+                << ERR_error_string(ERR_get_error(), nullptr) << std::endl;
+        EVP_KDF_CTX_free(ctx);
+        exit(1);
+    }
+
+    EVP_KDF_CTX_free(ctx);
     return key;
 }
 
