@@ -9,6 +9,7 @@
 #include <iterator>
 #include <iostream>
 #include "config_representation.h"
+#include "log/log.h"
 
 
 enum class FileObfuscation;
@@ -66,11 +67,11 @@ enum class EncryptionMode {
 
 
 enum class Defcon {
-    DEFCON1,
-    DEFCON2,
-    DEFCON3,
-    DEFCON4,
-    DEFCON5,
+    DEFCON1 = 1,
+    DEFCON2 = 2,
+    DEFCON3 = 3,
+    DEFCON4 = 4,
+    DEFCON5 = 5,
 };
 
 

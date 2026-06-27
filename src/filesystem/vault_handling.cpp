@@ -5,6 +5,7 @@
 #include "vault_handling.h"
 
 #include <algorithm>
+#include <cstring>
 
 std::string get_decfon_signature(std::string &vault_file_path, Defcon defcon) {
 }
@@ -64,9 +65,9 @@ bool is_vault_setup(std::filesystem::path &vault_file_path) {
     }
 
     if (found > 0 || sig > 0) {
-        std::cerr <<
-                "Not all defcon levels have an associated verification signature. This will not prevent this program from running, but you will need to set a password for any DEFCON section without an associated signature."
-                << std::endl;
+        logger.log(WARN, "is_vault_setup()",
+                   "Not all defcon levels have an associated verification signature. This will not prevent this program from running, but you will need to set a password for any DEFCON section without an associated signature."
+        );
     }
     return true;
 }
@@ -98,13 +99,13 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
     while (std::getline(vault, line)) {
         std::string k = line.substr(0, line.find('='));
         if (k == key) {
-            std::cerr << k << " clashes with your new key : " << key << ". Aborting." << '\n';
+            std::cerr << k << " clashes with your new key : " << key << ". Aborting." << std::endl;
             exit(1);
         }
-        temp << line << '\n';
+        temp << line << std::endl;
     }
 
-    temp << key << '=' << value << '\n';
+    temp << key << '=' << value << std::endl;
 
     vault.close();
     temp.close();
@@ -113,7 +114,7 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
     std::filesystem::rename(temp_path, config.vault_file_path);
 }
 
-void write_signature(std::string& signature, Defcon defcon, ConfigRepresentation &config) {
+void write_signature(std::string &signature, Defcon defcon, ConfigRepresentation &config) {
     std::string decfon_string;
     switch (defcon) {
         case Defcon::DEFCON1:
@@ -175,7 +176,7 @@ void write_signature(std::string& signature, Defcon defcon, ConfigRepresentation
             found = false;
         }
 
-        temp << line << '\n';
+        temp << line << std::endl;
     }
 
 
@@ -232,8 +233,8 @@ Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &co
         }
 
         if (line.starts_with(CITADEL_VAULT_SIG_START)) {
-            sig = line.replace(line.find(CITADEL_VAULT_SIG_START), sizeof(CITADEL_VAULT_SIG_START) - 1, "");
-            sig = line.replace(line.find(CITADEL_VAULT_SIG_END), sizeof(CITADEL_VAULT_SIG_END) - 1, "");
+            sig = line.replace(line.find(CITADEL_VAULT_SIG_START), strlen(CITADEL_VAULT_SIG_START) - 1, "");
+            sig = line.replace(line.find(CITADEL_VAULT_SIG_END), strlen(CITADEL_VAULT_SIG_END) - 1, "");
         }
 
         if (line.starts_with('#')) // support comments
@@ -283,7 +284,7 @@ void delete_entry(std::string &key, ConfigRepresentation &config) {
     while (std::getline(vault, line)) {
         if (line.starts_with('#')) {
             // support comments
-            temp << line << '\n';
+            temp << line << std::endl;
             continue;
         }
         std::string k = line.substr(0, line.find('='));
@@ -293,7 +294,7 @@ void delete_entry(std::string &key, ConfigRepresentation &config) {
             continue;
         }
 
-        temp << line << '\n';
+        temp << line << std::endl;
     }
 
     vault.close();

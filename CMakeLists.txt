@@ -13,6 +13,7 @@ add_library(CitadelCore
         src/filesystem/vault_handling.cpp
         src/crypt/base64.cpp
         src/crypt/key_derivation.cpp
+        src/log/log.h
 )
 
 target_include_directories(CitadelCore PUBLIC ${CMAKE_SOURCE_DIR}/src)

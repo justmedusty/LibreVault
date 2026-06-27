@@ -22,6 +22,7 @@ namespace Encryption {
 
     struct EncryptionContext {
         std::string passphrase;
+        std::string confirm_passphrase; //only for setting a defcon section password to ensure you typed it correctly
         std::vector<std::byte> key_material;
         std::vector<std::byte> iv;
         std::vector<std::byte> kdf_salt;
@@ -41,6 +42,7 @@ namespace Encryption {
             this->current_defcon = config.defcon;
             this->configRepresentation = config;
             this->passphrase = "";
+            this->confirm_passphrase = "";
             this->key_material = std::vector<std::byte>(32);
             this->iv = std::vector<std::byte>(AES_GCM_IV_LEN);
             this->mode = EncryptionMode::AES_256_GCM; //Default algo
@@ -50,16 +52,16 @@ namespace Encryption {
         }
 
         ~EncryptionContext() {
+            std::cout << "Secure destruction initialzed..." << std::endl;
             OPENSSL_cleanse(this->passphrase.data(), this->passphrase.size());
+            OPENSSL_cleanse(this->confirm_passphrase.data(), this->confirm_passphrase.size());
             OPENSSL_cleanse(this->key_material.data(), this->key_material.size());
             OPENSSL_cleanse(this->secret.data(), this->secret.size());
         }
 
     private:
         bool verify_defcon_signature();
-
         void generate_iv();
-
         [[nodiscard]] std::string get_signature() const;
     };
 };

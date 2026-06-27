@@ -11,8 +11,9 @@
 #if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
 #include <sys/mman.h>
 #endif
+#include <cstring>
 #include <openssl/rand.h>
-
+#include "log/log.h"
 #include "base64.h"
 #include "key_derivation.h"
 #include "algo/aes.h"
@@ -32,20 +33,17 @@ namespace Encryption {
         //THIS SHOULD HAVE MCL_CURRENT AND MCL_FUTURE FOR NOW JUST MCL FUTURE SINCE IT NEEDS ADDDED CAPS FOR BOTH
         if (mlockall(MCL_FUTURE) < 0) {
             // lock all current and future pages into main memory
-            std::cerr <<
-                    "mlockall failed, exiting early for security purposes. Check memory availability/consumption and try again."
-                    << std::endl;
+            logger.log(ERROR, "lock_memory()",
+                       "mlockall failed, exiting early for security purposes. Check memory availability/consumption and try again.");
             exit(1);
         }
-
 
 #elif defined(_WIN32)
         VirtualLock(ptr, size);
         return 1;
 #else
-        std::cout <<
-                "Memory lock cannot be attained, this is not a massive risk since this program is short lived, but paging to disk can compromise program security"
-                << std::endl;
+        logger.log(ERROR, "lock_memory()",
+                   "Memory lock cannot be attained as this program is neither POSIX nor WIN32, this is not a massive risk since this program is short lived, but paging to disk can compromise program security");
         return 0;
 #endif
     }
@@ -61,6 +59,8 @@ namespace Encryption {
 
     void set_stdin_echo(bool enable) {
         if (!stdin_terminal()) {
+            logger.log(WARN, "set_stdin_echo()",
+                       "stdin is NOT a terminal, this is not standard usage of this application");
             return;
         }
 #ifdef WIN32
@@ -81,7 +81,7 @@ namespace Encryption {
 #else
         termios tty;
         if (tcgetattr(STDIN_FILENO, &tty) != 0) {
-            fputs("tcgetattr failed\n", stderr);
+            logger.log(ERROR, "stdin_terminal()", "tcgetattr failed");
             return;
         }
         if (!enable) {
@@ -90,7 +90,7 @@ namespace Encryption {
             tty.c_lflag |= ECHO;
         }
         if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) != 0) {
-            fputs("tcsetattr failed\n", stderr);
+            logger.log(ERROR, "stdin_terminal()", "tcsetattr failed");
         }
 #endif
     }
@@ -136,8 +136,9 @@ namespace Encryption {
 
             if (here) {
                 std::string sig = line.substr(sizeof(CITADEL_VAULT_SIG_START),
-                                              line.size() - sizeof(CITADEL_VAULT_SIG_END));
-                std::cout << "SIG :" << sig << std::endl;
+                                              line.size() - strlen(CITADEL_VAULT_SIG_END));
+                logger.log(INFO, "get_signature()",
+                           std::format("Fetching signature for DEFCON{} , signature is : {}", static_cast<int>(current_defcon), *sig.c_str()));
                 return sig;
             }
         }
@@ -166,12 +167,14 @@ namespace Encryption {
                                              plaintext_len, tag_ptr);
 
         if (ret != 0) {
-            std::cerr << "Encryption verification failed" << std::endl;
+            logger.log(ERROR, "verify_defcon_signature()",
+                           "Encryption verification failed");
             return false;
         }
 
-        if (ciphertext != plaintext) {
-            std::cerr << "verify_defcon_signature: Outputs do not much" << std::endl;
+        if (expected != plaintext.substr(0, expected.size())) {
+            logger.log(ERROR, "verify_defcon_signature()",
+                           "Expected does NOT equal plaintext");
             return false;
         }
 
@@ -191,7 +194,7 @@ namespace Encryption {
         std::vector<uint8_t> salt_vec(salt.begin(), salt.end());
 
 
-        derive_key(this->passphrase, salt_vec, this->key_material,this->current_defcon);
+        derive_key(this->passphrase, salt_vec, this->key_material, this->current_defcon);
 
 
         int i = 0;

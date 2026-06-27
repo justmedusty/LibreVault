@@ -72,6 +72,7 @@ BOOST_AUTO_TEST_CASE(aes_256_gcm_e_then_d) {
 }
 
 BOOST_AUTO_TEST_CASE(aes_256_gcm_e_then_d_then_check_plaintext) {
+
     const char *plaintext = "Here is some plaintext for AES 256 GCM testing";
     int len = strlen(plaintext);
     auto *key = static_cast<uint8_t *>(malloc(32));
