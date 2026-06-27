@@ -113,7 +113,7 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
     std::filesystem::remove(config.vault_file_path);
     std::filesystem::rename(temp_path, config.vault_file_path);
 }
-
+//An invariant of this function is that there is NOT an existing signature, this is a bug if this is ever called and a signature already exists.
 void write_signature(std::string &signature, Defcon defcon, ConfigRepresentation &config) {
     std::string decfon_string;
     switch (defcon) {
