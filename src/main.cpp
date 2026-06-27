@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
             "You shouldn't use Windows. Just mentioning that in passing. Now let's get back to the vault activities." <<
             std::endl;
 #endif
-    logger.log(DEBUG, "main", "attempting to lock memory...");
+    logger.log(DEBUG, "main()", "attempting to lock memory...");
     Encryption::lock_memory();
     const std::vector<std::string> arguments(argv + 1, argv + argc);
     auto config = new ConfigRepresentation();

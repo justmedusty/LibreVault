@@ -138,11 +138,13 @@ namespace Encryption {
                 std::string sig = line.substr(sizeof(CITADEL_VAULT_SIG_START),
                                               line.size() - strlen(CITADEL_VAULT_SIG_END));
                 logger.log(INFO, "get_signature()",
-                           std::format("Fetching signature for DEFCON{} , signature is : {}", static_cast<int>(current_defcon), *sig.c_str()));
+                           std::format("Fetching signature for DEFCON{} , signature is : {}",
+                                       static_cast<int>(current_defcon), *sig.c_str()));
                 return sig;
             }
         }
-        std::cerr << "End of get_signature reached, this is a major bug! Please report to developer" << std::endl;
+        logger.log(CRITICAL, "get_signature()",
+                   "End of get_signature reached, this is a major bug! Please report to developer");
         return "";
     }
 
@@ -168,13 +170,13 @@ namespace Encryption {
 
         if (ret != 0) {
             logger.log(ERROR, "verify_defcon_signature()",
-                           "Encryption verification failed");
+                       "Encryption verification failed");
             return false;
         }
 
         if (expected != plaintext.substr(0, expected.size())) {
             logger.log(ERROR, "verify_defcon_signature()",
-                           "Expected does NOT equal plaintext");
+                       "Expected does NOT equal plaintext");
             return false;
         }
 
@@ -224,25 +226,9 @@ namespace Encryption {
         set_stdin_echo(false);
         std::string current_DEFCON;
 
-        switch (this->current_defcon) {
-            case Defcon::DEFCON1:
-                current_DEFCON = std::string{"DEFCON1"};
-                break;
-            case Defcon::DEFCON2:
-                current_DEFCON = std::string{"DEFCON2"};
-                break;
-            case Defcon::DEFCON3:
-                current_DEFCON = std::string{"DEFCON3"};
-                break;
-            case Defcon::DEFCON4:
-                current_DEFCON = std::string{"DEFCON4"};
-                break;
-            case Defcon::DEFCON5:
-                current_DEFCON = std::string{"DEFCON5"};
-                break;
-        }
-        std::cout << "Please enter your password, the DEFCON level password you must provide is " << current_DEFCON <<
-                ":" << std::endl;
+        std::cout << "Please enter your password, the DEFCON level password you must provide is DEFCON" << static_cast<
+                    int>(this->current_defcon) <<
+                std::endl;
         std::cin >> passphrase;
 
         set_stdin_echo(true);

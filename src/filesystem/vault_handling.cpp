@@ -233,8 +233,10 @@ Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &co
         }
 
         if (line.starts_with(CITADEL_VAULT_SIG_START)) {
-            sig = line.replace(line.find(CITADEL_VAULT_SIG_START), strlen(CITADEL_VAULT_SIG_START) - 1, "");
-            sig = line.replace(line.find(CITADEL_VAULT_SIG_END), strlen(CITADEL_VAULT_SIG_END) - 1, "");
+            logger.log(DEBUG, "read_entry()",
+                       std::format("Signature for Defcon{} is {}", static_cast<int>(defcon), *line.c_str()));
+            sig = line.replace(line.find(CITADEL_VAULT_SIG_START), strlen(CITADEL_VAULT_SIG_START) - 1, "").replace(
+                line.find(CITADEL_VAULT_SIG_END), strlen(CITADEL_VAULT_SIG_END) - 1, "");
         }
 
         if (line.starts_with('#')) // support comments

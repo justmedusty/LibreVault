@@ -43,19 +43,19 @@ struct Logger {
         }
         switch (log_level) {
             case DEBUG:
-                std::cout << "[DEBUG] function:" << function << ": " << message << std::endl;
+                std::cout << "[DEBUG] in function: " << function << " , " << message << std::endl;
                 break;
             case INFO:
-                std::cout << "[INFO] function:" << function << ": " << message << std::endl;
+                std::cout << "[INFO] in function: " << function << " , " << message << std::endl;
                 break;
             case WARN:
-                std::cout << "[WARN] function:" << function << ": " << message << std::endl;
+                std::cout << "[WARN] in function: " << function << " , " << message << std::endl;
                 break;
             case ERROR:
-                std::cerr << "[ERROR] function:" << function << ": " << message << std::endl;
+                std::cerr << "[ERROR] in function: " << function << " , " << message << std::endl;
                 break;
             case CRITICAL:
-                std::cerr << "[CRITICAL] function:" << function << ": " << message << std::endl;
+                std::cerr << "[CRITICAL] in function: " << function << " , " << message << std::endl;
                 break;
         }
     }
