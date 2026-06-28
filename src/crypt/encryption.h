@@ -25,7 +25,7 @@ namespace Encryption {
         std::string confirm_passphrase; //only for setting a defcon section password to ensure you typed it correctly
         std::vector<std::byte> key_material;
         std::vector<std::byte> iv;
-        std::vector<std::byte> kdf_salt;
+        std::vector<uint8_t> kdf_salt;
         std::string secret;
         std::string defcon_signature;
         Defcon current_defcon;
@@ -34,9 +34,10 @@ namespace Encryption {
 
         void receive_passphrase();
 
-        void decrypt_string(std::string &ciphertext);
+        void decrypt_string(const std::string &ciphertext);
 
-        std::string encrypt_string(std::string &secret);
+        std::string encrypt_string();
+
         void write_signature(std::string &signature);
 
         explicit EncryptionContext(const ConfigRepresentation &config) {
@@ -53,7 +54,7 @@ namespace Encryption {
         }
 
         ~EncryptionContext() {
-            std::cout << "Secure destruction initialzed..." << std::endl;
+            logger.log(INFO, "~EncryptionContext()", "Secure destruction initialized...");
             OPENSSL_cleanse(this->passphrase.data(), this->passphrase.size());
             OPENSSL_cleanse(this->confirm_passphrase.data(), this->confirm_passphrase.size());
             OPENSSL_cleanse(this->key_material.data(), this->key_material.size());
@@ -62,7 +63,9 @@ namespace Encryption {
 
     private:
         bool verify_defcon_signature();
+
         void generate_iv();
+
         [[nodiscard]] std::string get_signature() const;
     };
 };

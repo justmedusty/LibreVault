@@ -22,5 +22,5 @@ int derive_key(
     std::vector<std::byte> &key,
     Defcon defcon);
 
-std::vector<uint8_t> generate_salt();
+void generate_salt(std::vector<uint8_t> &salt_buf);
 #endif //CITADEL_KEY_DERIVATION_H

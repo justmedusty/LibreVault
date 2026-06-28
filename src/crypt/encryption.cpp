@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #endif
 #include <cstring>
+#include <math.h>
 #include <openssl/rand.h>
 #include "log/log.h"
 #include "base64.h"
@@ -184,14 +185,15 @@ namespace Encryption {
     }
 
 
-    void EncryptionContext::decrypt_string(std::string &ciphertext) {
+    void EncryptionContext::decrypt_string(const std::string &ciphertext) {
         std::string decoded = Base64::base64_decode(ciphertext);
+        std::string salt = decoded.substr(0,KDF_SALT_SIZE_BYTES);
         std::string iv = decoded.substr(KDF_SALT_SIZE_BYTES, AES_GCM_IV_LEN);
         std::string tag = decoded.substr(KDF_SALT_SIZE_BYTES + AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
         std::string cipherttxt = decoded.substr(KDF_SALT_SIZE_BYTES + AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE,
-                                                ciphertext.size());
+                                                decoded.length());
 
-        std::string salt = decoded.substr(0,KDF_SALT_SIZE_BYTES);
+        logger.log(DEBUG, "decrypt_string()", "Finishing cleaning up salt, iv, tag, ciphertext...");
 
         std::vector<uint8_t> salt_vec(salt.begin(), salt.end());
 
@@ -204,33 +206,80 @@ namespace Encryption {
             this->iv[i++] = static_cast<std::byte>(c);
         }
 
-        std::string plaintext(ciphertext.length(), '\0');
+        this->secret.resize(cipherttxt.length());
 
-        const auto plaintext_ptr = reinterpret_cast<unsigned char *>(plaintext.data());
+        const auto plaintext_ptr = reinterpret_cast<unsigned char *>(this->secret.data());
         const auto ciphertext_ptr = reinterpret_cast<unsigned char *>(cipherttxt.data());
         const auto tag_ptr = reinterpret_cast<unsigned char *>(tag.data());
         const auto key_ptr = reinterpret_cast<unsigned char *>(this->key_material.data());
         const auto iv_ptr = reinterpret_cast<unsigned char *>(this->iv.data());
 
-        int plaintext_len = ciphertext.length();
+        int plaintext_len = cipherttxt.length();
+        logger.log(DEBUG, "decrypt_string()", "Calling into aes_256_gcm_decrypt...");
         auto ret = aes_256_gcm_decrypt(ciphertext_ptr, cipherttxt.size(), key_ptr, iv_ptr, plaintext_ptr, plaintext_len,
                                        tag_ptr);
-
+        logger.log(DEBUG, "decrypt_string()", "Returned from aes_256_gcm_decrypt...");
         if (!ret) {
             std::cerr << "Decryption failed" << std::endl;
         }
     }
 
+    std::string EncryptionContext::encrypt_string() {
+        generate_iv();
+        generate_salt(this->kdf_salt);
+        auto ret = derive_key(this->passphrase, this->kdf_salt, this->key_material, this->current_defcon);
 
+        if (ret != 1) {
+            logger.log(ERROR, "encrypt_string()", "An error occurred while trying to derive key");
+            delete this;
+            exit(1);
+        }
+
+        std::string ciphertext(
+            this->secret.length() + 16
+            /* Just make sure we have room for padding if it cant be split into AES blocks nicely*/, '\0');
+
+        int ciphertext_len = ciphertext.size();
+        std::string tag(AES_GCM_AEAD_TAG_SIZE, '\0');
+        ret = aes_256_gcm_encrypt(reinterpret_cast<unsigned char *>(this->secret.data()), this->secret.size(),
+                                  reinterpret_cast<const unsigned char *>(this->key_material.data()),
+                                  reinterpret_cast<const unsigned char *>(this->iv.data()),
+                                  reinterpret_cast<unsigned char *>(ciphertext.data()), &ciphertext_len,
+                                  reinterpret_cast<unsigned char *>(tag.data()));
+
+        if (!ret) {
+            logger.log(ERROR, "encrypt_string()", "aes_256_gcm_encrypt call has failed");
+            delete this;
+            exit(1);
+        }
+
+        std::string *kdf_salt = reinterpret_cast<std::string *>(this->kdf_salt.data());
+
+        ciphertext.resize(ciphertext_len);
+
+        std::string final_payload;
+        final_payload.reserve(this->kdf_salt.size() + this->iv.size() + tag.size() + ciphertext.length());
+        final_payload.append(reinterpret_cast<char *>(this->kdf_salt.data()), this->kdf_salt.size());
+        final_payload.append(reinterpret_cast<char *>(this->iv.data()), this->iv.size());
+        final_payload.append(tag);
+        final_payload.append(ciphertext);
+
+        return Base64::base64_encode(final_payload);
+    }
 
 
     void EncryptionContext::receive_passphrase() {
+        if (!stdin_terminal()) {
+            return;
+            // This is for testing purposes for now but may be good from preventing the wrong use of this application
+        }
         set_stdin_echo(false);
         std::string current_DEFCON;
 
         std::cout << "Please enter your password, the DEFCON level password you must provide is DEFCON" << static_cast<
                     int>(this->current_defcon) <<
                 std::endl;
+
         std::cin >> passphrase;
 
         set_stdin_echo(true);

@@ -10,21 +10,27 @@
 #include "crypt/algo/aes.h"
 
 BOOST_AUTO_TEST_CASE(check_salt_Size) {
-    auto salt = generate_salt();
+    std::vector<uint8_t> salt;
+    generate_salt(salt);
     BOOST_CHECK_EQUAL(salt.size(), KDF_SALT_SIZE_BYTES);
 }
 
 BOOST_AUTO_TEST_CASE(check_salt_contents) {
-    const auto salt = generate_salt();
-    const auto salt2 = generate_salt();
+    std::vector<uint8_t> salt;
+    generate_salt(salt);
+    std::vector<uint8_t> salt2;
+    generate_salt(salt2);
 
     BOOST_CHECK_EQUAL(salt.size(), salt2.size());
 }
 
 
 BOOST_AUTO_TEST_CASE(check_salt_difference) {
-    const auto salt = generate_salt();
-    const auto salt2 = generate_salt();
+    std::vector<uint8_t> salt;
+    generate_salt(salt);
+    std::vector<uint8_t> salt2;
+    generate_salt(salt2);
+
 
     auto equal = true;
     for (int i = 0; i < salt2.size(); i++) {
@@ -64,7 +70,8 @@ BOOST_AUTO_TEST_CASE(base64_encoding) {
 
 BOOST_AUTO_TEST_CASE(argon2) {
     std::string password = "superSecretPassWoRd!@#$%^&";
-    std::vector<uint8_t> salt = generate_salt();
+    std::vector<uint8_t> salt;
+    generate_salt(salt);
     std::vector<std::byte> derived_key(32);
     auto ret1 = derive_key(password, salt, derived_key, Defcon::DEFCON5);
 
@@ -78,7 +85,8 @@ BOOST_AUTO_TEST_CASE(argon2) {
 BOOST_AUTO_TEST_CASE(argon2_diff_passwd_check) {
     std::string password = "SuperSecretPassWoRd!@#$%^&";
     std::string password2 = "superSecretPassWoRd!@#$%^&";
-    std::vector<uint8_t> salt = generate_salt();
+    std::vector<uint8_t> salt;
+    generate_salt(salt);
     std::vector<std::byte> derived_key(32);
     std::vector<std::byte> derived_key2(32);
 
@@ -98,7 +106,8 @@ BOOST_AUTO_TEST_CASE(argon2_diff_passwd_check) {
 
 BOOST_AUTO_TEST_CASE(argon2_same_passwd_check) {
     std::string password = "SuperSecretPassWoRd!@#$%^&";
-    std::vector<uint8_t> salt = generate_salt();
+    std::vector<uint8_t> salt;
+    generate_salt(salt);
 
     std::vector<std::byte> derived_key(32);
     std::vector<std::byte> derived_key2(32);

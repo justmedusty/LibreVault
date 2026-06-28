@@ -153,12 +153,11 @@ int derive_key(
 }
 
 //generate a random salt (do this once, store alongside ciphertext)
-std::vector<uint8_t> generate_salt() {
+void generate_salt(std::vector<uint8_t> &salt_buf) {
     logger.log(DEBUG, "generate_salt()", std::format("Generating salt of size {}", KDF_SALT_SIZE_BYTES));
     int len = KDF_SALT_SIZE_BYTES;
-    std::vector<uint8_t> salt(len);
-    RAND_bytes(salt.data(), len);
-    return salt;
+    salt_buf.resize(len);
+    RAND_bytes(salt_buf.data(), len);
 }
 
 

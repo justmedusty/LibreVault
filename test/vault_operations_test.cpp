@@ -56,3 +56,111 @@ BOOST_AUTO_TEST_CASE(arg_parsing_check2_with_vault_creation) {
     std::filesystem::remove(vault_file_path);
 }
 
+/*
+ * NOTE FOR TESTING
+ * DEFCON1 TAKES A FUCKING INSANELY LONG TIME TO DERIVE KEYS
+ * FOR TESTING IT IS GENERALLY EASIER TO USE DEFCON5
+ */
+BOOST_AUTO_TEST_CASE(testing_top_level_encrypt_function) {
+    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::remove(vault_file_path); //if tests fail it can leave the dead files there so we must do this
+    create_vault(vault_file_path);
+    ConfigRepresentation config_representation(vault_file_path);
+    const std::vector<std::string> args = {
+        FLAG_ENCRYPT,
+        FLAG_KEY,
+        "my_secret",
+        FLAG_VALUE,
+        "test_secret123",
+        FLAG_DEFCON_LEVEL_TO_ENCRYPT,
+        "5",
+    };
+
+    config_representation.parse_command_line_args(args);
+    Encryption::EncryptionContext encryption_context(config_representation);
+    encryption_context.passphrase = "supersecretpassword123!";
+    std::string base64_ciphertext = encryption_context.encrypt_string();
+    std::string base64_ciphertext2 = encryption_context.encrypt_string();
+
+    std::cout << base64_ciphertext << std::endl;
+    std::cout << base64_ciphertext2 << std::endl;
+
+    BOOST_CHECK(!base64_ciphertext.empty());
+    BOOST_CHECK_NE(base64_ciphertext, base64_ciphertext2);
+    // These two are expected to differ because encrypt_string generates an IV and KDF salt
+
+    std::filesystem::remove(vault_file_path);
+}
+
+BOOST_AUTO_TEST_CASE(testing_top_level_decrypt_function) {
+    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::remove(vault_file_path); //if tests fail it can leave the dead files there so we must do this
+    create_vault(vault_file_path);
+    ConfigRepresentation config_representation(vault_file_path);
+    const std::vector<std::string> args = {
+        FLAG_ENCRYPT,
+        FLAG_KEY,
+        "my_secret",
+        FLAG_VALUE,
+        "test_secret123",
+        FLAG_DEFCON_LEVEL_TO_ENCRYPT,
+        "5",
+    };
+
+    config_representation.parse_command_line_args(args);
+    Encryption::EncryptionContext encryption_context(config_representation);
+    encryption_context.passphrase = "supersecretpassword123!";
+    std::string base64_ciphertext = encryption_context.encrypt_string();
+    std::cout << base64_ciphertext << std::endl;
+    std::cout << "after enc" << std::endl;
+    encryption_context.decrypt_string(base64_ciphertext);
+    std::cout << encryption_context.secret << std::endl;
+    BOOST_CHECK_EQUAL("test_secret123", encryption_context.secret);
+
+    std::filesystem::remove(vault_file_path);
+}
+
+BOOST_AUTO_TEST_CASE(testing_top_level_decrypt_many_function) {
+    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::remove(vault_file_path); //if tests fail it can leave the dead files there so we must do this
+    create_vault(vault_file_path);
+    ConfigRepresentation config_representation(vault_file_path);
+    const std::vector<std::string> args = {
+        FLAG_ENCRYPT,
+        FLAG_KEY,
+        "my_secret",
+        FLAG_VALUE,
+        "test_secret123",
+        FLAG_DEFCON_LEVEL_TO_ENCRYPT,
+        "5",
+    };
+
+    config_representation.parse_command_line_args(args);
+    Encryption::EncryptionContext encryption_context(config_representation);
+    encryption_context.passphrase = "supersecretpassword123!";
+
+    /*
+     * These all have their own tags and IV and KDF salts so we must be able to decrypt them all back to our inital test_secret string
+     */
+    std::string base64_ciphertext = encryption_context.encrypt_string();
+    std::string base64_ciphertext2 = encryption_context.encrypt_string();
+    std::string base64_ciphertext3 = encryption_context.encrypt_string();
+    std::string base64_ciphertext4 = encryption_context.encrypt_string();
+
+
+    std::cout << "after enc" << std::endl;
+
+    encryption_context.decrypt_string(base64_ciphertext);
+    BOOST_CHECK_EQUAL("test_secret123", encryption_context.secret);
+
+    encryption_context.decrypt_string(base64_ciphertext2);
+    BOOST_CHECK_EQUAL("test_secret123", encryption_context.secret);
+
+    encryption_context.decrypt_string(base64_ciphertext3);
+    BOOST_CHECK_EQUAL("test_secret123", encryption_context.secret);
+
+    encryption_context.decrypt_string(base64_ciphertext4);
+    BOOST_CHECK_EQUAL("test_secret123", encryption_context.secret);
+
+    std::filesystem::remove(vault_file_path);
+}
