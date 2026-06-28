@@ -7,14 +7,16 @@
 #include "filesystem/vault_handling.h"
 
 BOOST_AUTO_TEST_CASE(can_create_vault_file) {
-    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::path vault_file_path = "/tmp/vault2";
+    std::filesystem::remove(vault_file_path);
     create_vault(vault_file_path);
-    BOOST_CHECK_EQUAL(vault_file_path.filename().string(), "vault");
+    BOOST_CHECK_EQUAL(vault_file_path.filename().string(), "vault2");
     std::filesystem::remove(vault_file_path);
 }
 
 BOOST_AUTO_TEST_CASE(created_vault_file_is_setup) {
-    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::path vault_file_path = "/tmp/vault2";
+    std::filesystem::remove(vault_file_path);
     create_vault(vault_file_path);
     auto ret = is_vault_setup(vault_file_path);
     BOOST_CHECK_EQUAL(ret, true);

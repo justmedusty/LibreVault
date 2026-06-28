@@ -222,6 +222,8 @@ namespace Encryption {
     }
 
 
+
+
     void EncryptionContext::receive_passphrase() {
         set_stdin_echo(false);
         std::string current_DEFCON;

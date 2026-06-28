@@ -35,6 +35,16 @@ add_executable(CitadelKeyDerivationTests
         test/key_derivation_test.cpp
 )
 
+add_executable(CitadelVaultOperationsTests
+        test/vault_operations_test.cpp
+)
+
+target_link_libraries(CitadelVaultOperationsTests PRIVATE
+        CitadelCore
+        Boost::unit_test_framework
+)
+
+
 target_link_libraries(CitadelKeyDerivationTests PRIVATE
         CitadelCore
         Boost::unit_test_framework
@@ -57,3 +67,4 @@ enable_testing()
 add_test(NAME CitadelParseTests COMMAND CitadelParseTests)
 add_test(NAME CitadelEncryptionTests COMMAND CitadelEncryptionTests)
 add_test(NAME CitadelKeyDerivationTests COMMAND CitadelKeyDerivationTests)
+add_test(NAME CitadelVaultOperationsTests COMMAND CitadelVaultOperationsTests)

@@ -8,7 +8,7 @@
 void ConfigRepresentation::parse_command_line_args(std::vector<std::string> arguments) {
     for (auto arg = arguments.begin(); arg != arguments.end(); ++arg) {
         if (*arg == FLAG_HELP) {
-            this->help();
+            help();
         }
         if ((*arg) == FLAG_ENCRYPT) {
             this->decrypt = false;
@@ -18,6 +18,43 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
         if ((*arg) == FLAG_DECRYPT) {
             this->decrypt = true;
             continue;
+        }
+
+        if (*arg == FLAG_DEFCON_LEVEL_TO_ENCRYPT) {
+            if (arg == arguments.end()) {
+                std::cerr <<
+                        "You have passed a flag that requires a value, with no value given! You must provide a value when using the "
+                        << FLAG_VALUE << " flag." << std::endl;
+            }
+            ++arg;
+
+            /*
+             *  The way we are parsing this is forgiving , 12434534 would be 1 , 23453456, would be 2 etc.
+             */
+
+            switch (char level = arg->data()[0]) {
+                case '1':
+                    this->defcon = Defcon::DEFCON1;
+                    break;
+                case '2':
+                    this->defcon = Defcon::DEFCON2;
+                    break;
+                case '3':
+                    this->defcon = Defcon::DEFCON3;
+                    break;
+                case '4':
+                    this->defcon = Defcon::DEFCON4;
+                    break;
+                case '5':
+                    this->defcon = Defcon::DEFCON5;
+                    break;
+                default:
+                    std::cerr << *arg << " is an invalid defcon value, {1,2,3,4,5} are the valid values." << std::endl;
+                    /*
+                     * We may want to cleanse all of these arg values in case user passes something sensitive accidentally, but for now we won't
+                     */
+                    exit(1);
+            }
         }
 
         if (*arg == FLAG_VALUE) {
@@ -41,10 +78,10 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
                 std::cerr <<
                         "You have passed a flag that requires a value, with no value given! You must provide a value when using the "
                         << FLAG_KEY << " flag." << std::endl;
-                this->key = std::move(*(arg + 1));
-                ++arg;
-                continue;
             }
+            this->key = std::move(*(arg + 1));
+            ++arg;
+            continue;
         }
 
         if (*arg == FLAG_VAULT_FILE_LOCATION) {
@@ -80,7 +117,7 @@ void ConfigRepresentation::parse_command_line_args(std::vector<std::string> argu
         std::cerr << "You have specified a vault file and the file does not exist! See : " << this->vault_file_path
                 << "Try citadel -h for help!" <<
                 std::endl;
-        if (this->value != "") {
+        if (!this->value.empty()) {
             //cleanse that shit
             OPENSSL_cleanse(this->value.data(), this->value.size());
         }

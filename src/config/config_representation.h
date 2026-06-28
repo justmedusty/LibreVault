@@ -8,6 +8,8 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
+#include <openssl/crypto.h>
+
 #include "config_representation.h"
 #include "log/log.h"
 
@@ -27,6 +29,8 @@ enum class EncryptionMode;
 #define FLAG_KEY "-k"
 #define FLAG_VALUE "-v"
 #define FLAG_VAULT_FILE_LOCATION "-vf"
+#define FLAG_DEFCON_LEVEL_TO_ENCRYPT "-defcon"
+#define FLAG_LIST_ALL_KEYS "-list"
 
 
 #define FILE_NO_OBFUSCATION_CONFIG_KEY "no_obfuscation"
@@ -83,15 +87,24 @@ struct ConfigRepresentation {
         encryption_mode = EncryptionMode::AES_256_GCM;
     }
 
+    explicit ConfigRepresentation(std::filesystem::path &vault) {
+        vault_file_path = std::move(vault);
+        decrypt = false;
+        encryption_mode = EncryptionMode::AES_256_GCM;
+    }
+
+
     ~ConfigRepresentation() {
+        OPENSSL_cleanse(value.data(), value.size());
     }
 
     bool decrypt;
     std::string key;
     std::string value;
     EncryptionMode encryption_mode;
-    std::string vault_file_path;
+    std::filesystem::path vault_file_path;
     Defcon defcon;
+    
 
 private:
     static void help() {
@@ -110,6 +123,10 @@ private:
                 "-a -> precedes the encryption algorithm you wish to use. Not yet implemented." << std::endl <<
                 "-h -> display the help message you are currently reading." << std::endl <<
                 "-dk -> delete a key and its associated value from the vault" << std::endl <<
+                "-defcon -> precedes an integer (1,2,3,4,5) for an ENCRYPT operation only, specifies where the new entry should go"
+                <<
+                "-list -> lists all entries in your vault" << std::endl
+                << std::endl <<
                 "-repass -> precedes a DEFCON option, DEFCON1 for defcon 1 and so on. Changes the password for that entire section of the vault. You must verify the current password first."
                 << std::endl <<
                 "This program has 5 separate levels of the vault:" << std::endl <<

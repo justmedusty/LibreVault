@@ -37,6 +37,7 @@ namespace Encryption {
         void decrypt_string(std::string &ciphertext);
 
         std::string encrypt_string(std::string &secret);
+        void write_signature(std::string &signature);
 
         explicit EncryptionContext(const ConfigRepresentation &config) {
             this->current_defcon = config.defcon;
