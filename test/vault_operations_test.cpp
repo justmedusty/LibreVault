@@ -164,3 +164,36 @@ BOOST_AUTO_TEST_CASE(testing_top_level_decrypt_many_function) {
 
     std::filesystem::remove(vault_file_path);
 }
+
+BOOST_AUTO_TEST_CASE(write_signature_test) {
+    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::remove(vault_file_path); //if tests fail it can leave the dead files there so we must do this
+    create_vault(vault_file_path);
+    ConfigRepresentation config_representation(vault_file_path);
+    const std::vector<std::string> args = {
+        FLAG_ENCRYPT,
+        FLAG_KEY,
+        "my_secret",
+        FLAG_VALUE,
+        "test_secret123",
+        FLAG_DEFCON_LEVEL_TO_ENCRYPT,
+        "5",
+    };
+
+
+    config_representation.parse_command_line_args(args);
+    Encryption::EncryptionContext encryption_context(config_representation);
+
+    encryption_context.passphrase = "supersecretpassword123!";
+    encryption_context.confirm_passphrase = "supersecretpassword123!";
+
+    std::string sig = encryption_context.generate_signature();
+
+    BOOST_CHECK(!sig.empty());
+    std::cout << sig << std::endl;
+    write_signature(sig, encryption_context.current_defcon, config_representation);
+    std::cout << "wrote sig" << std::endl;
+    BOOST_CHECK(encryption_context.verify_defcon_signature());
+
+    std::filesystem::remove(vault_file_path);
+}

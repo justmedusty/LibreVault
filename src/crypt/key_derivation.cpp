@@ -87,8 +87,8 @@ int derive_key(
 
     switch (defcon) {
         case Defcon::DEFCON1:
-            defcon_boost = 24; //VERY high rounds boost, very good defense about CPU centric attacks
-            memory_divisor = 1; // max memory usage, divide by 1 , extremely good defense against GPU centric attacks
+            defcon_boost = 24; //VERY high rounds boost, very good defense against CPU centric attacks
+            memory_divisor = 1; // max memory usage, divide by 1 , fantastic defense against GPU centric attacks
             break;
         case Defcon::DEFCON2:
             defcon_boost = 12;

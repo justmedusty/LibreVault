@@ -136,8 +136,12 @@ namespace Encryption {
             }
 
             if (here) {
+                if (!line.starts_with(CITADEL_VAULT_SIG_START)) {
+                    logger.log(WARN, "get_signature()", "Cannot find a valid signature in vault file");
+                    return "";
+                }
                 std::string sig = line.substr(sizeof(CITADEL_VAULT_SIG_START),
-                                              line.size() - strlen(CITADEL_VAULT_SIG_END));
+                                              line.length() - sizeof(CITADEL_VAULT_SIG_END));
                 logger.log(INFO, "get_signature()",
                            std::format("Fetching signature for DEFCON{} , signature is : {}",
                                        static_cast<int>(current_defcon), *sig.c_str()));
@@ -151,8 +155,9 @@ namespace Encryption {
 
     bool EncryptionContext::verify_defcon_signature() {
         std::string expected = CITADEL_ENCRYPTION_STRING;
-
+        std::cout << expected << std::endl;
         std::string signature = this->get_signature();
+        std::cout << signature << std::endl;
         const std::string iv = Base64::base64_decode(signature).substr(0,AES_GCM_IV_LEN);
         std::string ciphertext = Base64::base64_decode(iv).substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, iv.size());
         std::string tag = Base64::base64_decode(ciphertext).substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
@@ -224,6 +229,20 @@ namespace Encryption {
         }
     }
 
+    std::string EncryptionContext::generate_signature() {
+        receive_passphrase();
+        receive_confirm_passphrase();
+
+        if (this->passphrase != this->confirm_passphrase) {
+            std::cerr << "Your passwords do NOT match, cannot generate signature..." << std::endl;
+            delete this;
+            exit(1);
+        }
+
+        this->secret = CITADEL_ENCRYPTION_STRING;
+        return this->encrypt_string();
+    }
+
     std::string EncryptionContext::encrypt_string() {
         generate_iv();
         generate_salt(this->kdf_salt);
@@ -281,6 +300,24 @@ namespace Encryption {
                 std::endl;
 
         std::cin >> passphrase;
+
+        set_stdin_echo(true);
+    }
+
+
+    void EncryptionContext::receive_confirm_passphrase() {
+        if (!stdin_terminal()) {
+            return;
+            // This is for testing purposes for now but may be good from preventing the wrong use of this application
+        }
+        set_stdin_echo(false);
+        std::string current_DEFCON;
+
+        std::cout << "Please enter your password, the DEFCON level password you must provide is DEFCON" << static_cast<
+                    int>(this->current_defcon) <<
+                std::endl;
+
+        std::cin >> confirm_passphrase;
 
         set_stdin_echo(true);
     }

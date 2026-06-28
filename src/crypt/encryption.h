@@ -36,9 +36,11 @@ namespace Encryption {
 
         void decrypt_string(const std::string &ciphertext);
 
+        std::string generate_signature();
+
         std::string encrypt_string();
 
-        void write_signature(std::string &signature);
+        bool verify_defcon_signature();
 
         explicit EncryptionContext(const ConfigRepresentation &config) {
             this->current_defcon = config.defcon;
@@ -62,10 +64,8 @@ namespace Encryption {
         }
 
     private:
-        bool verify_defcon_signature();
-
+        void receive_confirm_passphrase();
         void generate_iv();
-
         [[nodiscard]] std::string get_signature() const;
     };
 };

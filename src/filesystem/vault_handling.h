@@ -26,6 +26,8 @@ Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &co
 
 void delete_entry(std::string &key, ConfigRepresentation &config);
 
+std::string get_defcon_signature(std::string &vault_file_path, Defcon defcon);
+
 void create_vault(std::filesystem::path &vault_path);
 
 #endif //CITADEL_VAULT_HANDLING_H

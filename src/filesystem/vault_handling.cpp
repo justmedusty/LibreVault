@@ -7,7 +7,45 @@
 #include <algorithm>
 #include <cstring>
 
-std::string get_decfon_signature(std::string &vault_file_path, Defcon defcon) {
+std::string get_defcon_signature(std::string &vault_file_path, Defcon defcon) {
+    std::ifstream vault(vault_file_path);
+    if (!vault.is_open()) {
+        std::cerr << "Could not open vault file : " << vault_file_path << std::endl;
+        exit(1);
+    }
+    Defcon current_defcon = {};
+    std::string line;
+    while (std::getline(vault, line)) {
+        if (line == CITADEL_DEFCON_1) {
+            current_defcon = Defcon::DEFCON1;
+            continue;
+        }
+
+        if (line == CITADEL_DEFCON_2) {
+            current_defcon = Defcon::DEFCON2;
+            continue;
+        }
+
+        if (line == CITADEL_DEFCON_3) {
+            current_defcon = Defcon::DEFCON3;
+            continue;
+        }
+        if (line == CITADEL_DEFCON_4) {
+            current_defcon = Defcon::DEFCON4;
+            continue;
+        }
+        if (line == CITADEL_DEFCON_5) {
+            current_defcon = Defcon::DEFCON5;
+            continue;
+        }
+
+        if (line.starts_with(CITADEL_VAULT_SIG_START) && current_defcon == defcon) {
+            return line.substr(sizeof(CITADEL_VAULT_SIG_START),
+                               line.size() - sizeof(CITADEL_VAULT_SIG_START) - sizeof(CITADEL_VAULT_SIG_END));
+        }
+    }
+
+    return "";
 }
 
 bool is_vault_setup(std::filesystem::path &vault_file_path) {
@@ -328,6 +366,9 @@ void create_vault(std::filesystem::path &vault_path) {
     }
 
     vault << "#Citadel vault file" << std::endl;
+    vault <<
+            "#This is an automatically generated and managed file. If you do NOT know what you are doing, do NOT touch ANYTHING here manually"
+            << std::endl;
     vault << CITADEL_DEFCON_1 << std::endl;
     vault << CITADEL_DEFCON_2 << std::endl;
     vault << CITADEL_DEFCON_3 << std::endl;
