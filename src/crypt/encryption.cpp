@@ -159,33 +159,51 @@ namespace Encryption {
 
     bool EncryptionContext::verify_defcon_signature() {
         std::string expected = CITADEL_ENCRYPTION_STRING;
-        std::cout << expected << std::endl;
         std::string signature = this->get_signature();
-        std::cout << signature << std::endl;
         std::string decoded_signature = Base64::base64_decode(signature);
-        const std::string iv = decoded_signature.substr(0,AES_GCM_IV_LEN);
-        std::string ciphertext = decoded_signature.substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, iv.size());
-        std::string tag = decoded_signature.substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
-        std::string plaintext = {50}; //giving extra just in case, we will just check the expected size from 0 offset
+        std::string salt = decoded_signature.substr(0,KDF_SALT_SIZE_BYTES);
+        std::string iv = decoded_signature.substr(KDF_SALT_SIZE_BYTES, AES_GCM_IV_LEN);
+        std::string tag = decoded_signature.substr(KDF_SALT_SIZE_BYTES + AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
+        std::string cipherttxt = decoded_signature.substr(KDF_SALT_SIZE_BYTES + AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE,
+                                                          decoded_signature.length());
+
+
+        logger.log(DEBUG, "decrypt_string()", "Finishing cleaning up salt, iv, tag, ciphertext...");
+
+        std::vector<uint8_t> salt_vec(salt.begin(), salt.end());
+
+
+        derive_key(this->passphrase, salt_vec, this->key_material, this->current_defcon);
+
+
+        int i = 0;
+        for (const auto &c: iv) {
+            this->iv[i++] = static_cast<std::byte>(c);
+        }
+
+        this->secret.resize(cipherttxt.length());
+
+        std::string plaintext(50, '\0');
+        //giving extra just in case, we will just check the expected size from 0 offset
 
 
         int plaintext_len = 50;
         const auto plaintext_ptr = reinterpret_cast<unsigned char *>(plaintext.data());
-        const auto *ciphertext_ptr = reinterpret_cast<unsigned char *>(ciphertext.data());
+        const auto *ciphertext_ptr = reinterpret_cast<unsigned char *>(cipherttxt.data());
         const auto tag_ptr = reinterpret_cast<unsigned char *>(tag.data());
         const auto key_ptr = reinterpret_cast<unsigned char *>(this->key_material.data());
 
-        const auto ret = aes_256_gcm_decrypt(ciphertext_ptr, ciphertext.length(), key_ptr,
+        const auto ret = aes_256_gcm_decrypt(ciphertext_ptr, cipherttxt.length(), key_ptr,
                                              reinterpret_cast<const unsigned char *>(iv.c_str()), plaintext_ptr,
                                              plaintext_len, tag_ptr);
 
-        if (ret != 0) {
+        if (ret != 1) {
             logger.log(ERROR, "verify_defcon_signature()",
                        "Encryption verification failed");
             return false;
         }
 
-        if (expected != plaintext.substr(0, expected.length())) {
+        if (!plaintext.contains(expected)) {
             logger.log(ERROR, "verify_defcon_signature()",
                        "Expected does NOT equal plaintext");
             return false;
