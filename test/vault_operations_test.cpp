@@ -198,6 +198,52 @@ BOOST_AUTO_TEST_CASE(write_signature_test) {
     std::filesystem::remove(vault_file_path);
 }
 
+BOOST_AUTO_TEST_CASE(write_vault_test) {
+    std::filesystem::path vault_file_path = "/tmp/vault";
+    std::filesystem::remove(vault_file_path); //if tests fail it can leave the dead files there so we must do this
+    create_vault(vault_file_path);
+    ConfigRepresentation config_representation(vault_file_path);
+
+    const std::vector<std::string> args = {
+        FLAG_ENCRYPT,
+        FLAG_KEY,
+        "my_secret",
+        FLAG_VALUE,
+        "test_secret123",
+        FLAG_DEFCON_LEVEL_TO_ENCRYPT,
+        "5",
+    };
+
+
+    config_representation.parse_command_line_args(args);
+    Encryption::EncryptionContext encryption_context(config_representation);
+
+    encryption_context.passphrase = "supersecretpassword123!";
+    encryption_context.confirm_passphrase = "supersecretpassword123!";
+
+    std::string sig = encryption_context.generate_signature();
+    std::cout << sig << std::endl;
+    write_signature(sig, encryption_context.current_defcon, config_representation);
+
+    encryption_context.encrypt_string(); // encrypt the "test_secret123" string so we can insert it into the vault
+
+    write_entry(config_representation.key, encryption_context.secret, config_representation);
+
+
+    std::string signature(100, '\0');
+    std::string encrypted_entry(100, '\0');
+
+    auto ret = read_entry(config_representation.key, encrypted_entry, config_representation, &signature);
+
+
+    signature.resize(signature.length());
+    BOOST_CHECK(signature.contains(sig));
+    BOOST_CHECK(ret == Defcon::DEFCON5);
+
+
+    std::filesystem::remove(vault_file_path);
+}
+
 BOOST_AUTO_TEST_CASE(check_home_directory) {
     ConfigRepresentation config_representation{};
     const std::vector<std::string> args = {

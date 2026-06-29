@@ -22,7 +22,7 @@ void write_entry(std::string &key, std::string &value, ConfigRepresentation &con
 
 void write_signature(std::string &signature, Defcon defcon, ConfigRepresentation &config);
 
-Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &config);
+Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &config, std::string *signature);
 
 void delete_entry(std::string &key, ConfigRepresentation &config);
 

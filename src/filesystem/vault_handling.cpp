@@ -282,7 +282,8 @@ Defcon read_entry(std::string &key, std::string &value, ConfigRepresentation &co
             continue;
 
         std::string k = line.substr(0, line.find('='));
-        std::string v = line.substr(line.find('=') + 1, line.at(line.size() - 1));
+        std::string v = line.substr(line.find('=') + 1, line.size() - line.find('=') - 1);
+
 
         std::cout << k << ":" << v << std::endl;
 
@@ -355,7 +356,7 @@ void delete_entry(std::string &key, ConfigRepresentation &config) {
 }
 
 void create_vault(std::filesystem::path &vault_path) {
-    logger.log(DEBUG, "create_vault()",vault_path);
+    logger.log(DEBUG, "create_vault()", vault_path);
     if (std::filesystem::exists(vault_path)) {
         std::cerr << vault_path << " already exists!" << std::endl;
         exit(1);
