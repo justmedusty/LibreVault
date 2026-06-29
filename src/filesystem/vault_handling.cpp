@@ -197,9 +197,9 @@ void write_signature(std::string &signature, Defcon defcon, ConfigRepresentation
     bool found = false;
 
     while (std::getline(vault, line)) {
-        if (line == decfon_string) {
+        if (line.contains(decfon_string)) {
             found = true;
-            continue;
+            temp << line << std::endl;
         }
 
 
@@ -213,8 +213,8 @@ void write_signature(std::string &signature, Defcon defcon, ConfigRepresentation
         if (found == true) {
             temp << CITADEL_VAULT_SIG_START << signature << CITADEL_VAULT_SIG_END << std::endl;
             found = false;
+            continue;
         }
-
         temp << line << std::endl;
     }
 

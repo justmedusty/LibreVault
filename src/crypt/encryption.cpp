@@ -130,7 +130,7 @@ namespace Encryption {
         std::string line;
         bool here = false;
         while (std::getline(vault, line)) {
-            if (line == defcon) {
+            if (line.contains(defcon)) {
                 here = true;
                 continue;
             }
@@ -140,8 +140,12 @@ namespace Encryption {
                     logger.log(WARN, "get_signature()", "Cannot find a valid signature in vault file");
                     return "";
                 }
-                std::string sig = line.substr(sizeof(CITADEL_VAULT_SIG_START),
-                                              line.length() - sizeof(CITADEL_VAULT_SIG_END));
+                std::string sig = line.substr(sizeof(CITADEL_VAULT_SIG_START) - 1,
+                                              line.length() - (
+                                                  (sizeof(CITADEL_VAULT_SIG_END) + sizeof(CITADEL_VAULT_SIG_START)) -
+                                                  2));
+
+                std::cout << "SIG FETCHED IS " << sig << std::endl;
                 logger.log(INFO, "get_signature()",
                            std::format("Fetching signature for DEFCON{} , signature is : {}",
                                        static_cast<int>(current_defcon), *sig.c_str()));
@@ -158,10 +162,11 @@ namespace Encryption {
         std::cout << expected << std::endl;
         std::string signature = this->get_signature();
         std::cout << signature << std::endl;
-        const std::string iv = Base64::base64_decode(signature).substr(0,AES_GCM_IV_LEN);
-        std::string ciphertext = Base64::base64_decode(iv).substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, iv.size());
-        std::string tag = Base64::base64_decode(ciphertext).substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
-        std::string plaintext = {50};
+        std::string decoded_signature = Base64::base64_decode(signature);
+        const std::string iv = decoded_signature.substr(0,AES_GCM_IV_LEN);
+        std::string ciphertext = decoded_signature.substr(AES_GCM_IV_LEN + AES_GCM_AEAD_TAG_SIZE, iv.size());
+        std::string tag = decoded_signature.substr(AES_GCM_IV_LEN, AES_GCM_AEAD_TAG_SIZE);
+        std::string plaintext = {50}; //giving extra just in case, we will just check the expected size from 0 offset
 
 
         int plaintext_len = 50;
@@ -170,7 +175,7 @@ namespace Encryption {
         const auto tag_ptr = reinterpret_cast<unsigned char *>(tag.data());
         const auto key_ptr = reinterpret_cast<unsigned char *>(this->key_material.data());
 
-        const auto ret = aes_256_gcm_decrypt(ciphertext_ptr, ciphertext.size(), key_ptr,
+        const auto ret = aes_256_gcm_decrypt(ciphertext_ptr, ciphertext.length(), key_ptr,
                                              reinterpret_cast<const unsigned char *>(iv.c_str()), plaintext_ptr,
                                              plaintext_len, tag_ptr);
 
@@ -180,7 +185,7 @@ namespace Encryption {
             return false;
         }
 
-        if (expected != plaintext.substr(0, expected.size())) {
+        if (expected != plaintext.substr(0, expected.length())) {
             logger.log(ERROR, "verify_defcon_signature()",
                        "Expected does NOT equal plaintext");
             return false;
@@ -288,6 +293,7 @@ namespace Encryption {
 
 
     void EncryptionContext::receive_passphrase() {
+        return;
         if (!stdin_terminal()) {
             return;
             // This is for testing purposes for now but may be good from preventing the wrong use of this application
@@ -306,6 +312,7 @@ namespace Encryption {
 
 
     void EncryptionContext::receive_confirm_passphrase() {
+        return;
         if (!stdin_terminal()) {
             return;
             // This is for testing purposes for now but may be good from preventing the wrong use of this application
