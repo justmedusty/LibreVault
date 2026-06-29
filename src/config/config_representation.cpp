@@ -5,6 +5,49 @@
 #include "config_representation.h"
 #include "crypt/encryption.h"
 
+
+#include <fstream>
+#include <string>
+#include <stdexcept>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#include <pwd.h>
+#endif
+
+std::filesystem::path ConfigRepresentation::get_home_directory() {
+#ifdef _WIN32
+    // Windows: use USERPROFILE or HOMEDRIVE+HOMEPATH
+    const char *userProfile = std::getenv("USERPROFILE");
+    if (userProfile) std::filesystem::path(userProfile) / homePath / ".vault" / "citadel.vault";
+
+    const char *homeDrive = std::getenv("HOMEDRIVE");
+    const char *homePath = std::getenv("HOMEPATH");
+    if (homeDrive && homePath) {
+        return std::filesystem::path(homeDrive) / homePath / ".vault" / "citadel.vault";
+    }
+
+
+    throw std::runtime_error("Cannot determine home directory on Windows");
+#else
+    // Unix/macOS: prefer HOME env var, fall back to passwd entry
+    const char *home = std::getenv("HOME");
+    if (home) return std::filesystem::path(home) / ".citadel" / "citadel.vault";
+
+    // Fallback: look up the real home from the password database
+    struct passwd *pw = getpwuid(getuid());
+    if (!pw) {
+        throw std::runtime_error("Could not get home directory");
+    }
+
+    auto path = std::filesystem::path(pw->pw_dir) / ".citadel" / "citadel.vault";
+    return path;
+#endif
+}
+
+
 void ConfigRepresentation::parse_command_line_args(std::vector<std::string> arguments) {
     for (auto arg = arguments.begin(); arg != arguments.end(); ++arg) {
         if (*arg == FLAG_HELP) {

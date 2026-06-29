@@ -355,10 +355,12 @@ void delete_entry(std::string &key, ConfigRepresentation &config) {
 }
 
 void create_vault(std::filesystem::path &vault_path) {
+    logger.log(DEBUG, "create_vault()",vault_path);
     if (std::filesystem::exists(vault_path)) {
         std::cerr << vault_path << " already exists!" << std::endl;
         exit(1);
     }
+    std::filesystem::create_directories(vault_path.parent_path());
     std::ofstream vault(vault_path);
     if (!vault.is_open()) {
         std::cerr << "Could not open vault file: " << vault_path << std::endl;

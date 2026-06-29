@@ -197,3 +197,24 @@ BOOST_AUTO_TEST_CASE(write_signature_test) {
 
     std::filesystem::remove(vault_file_path);
 }
+
+BOOST_AUTO_TEST_CASE(check_home_directory) {
+    ConfigRepresentation config_representation{};
+    const std::vector<std::string> args = {
+        FLAG_ENCRYPT,
+        FLAG_KEY,
+        "my_secret",
+        FLAG_VALUE,
+        "test_secret123",
+        FLAG_DEFCON_LEVEL_TO_ENCRYPT,
+        "5",
+    };
+    create_vault(config_representation.vault_file_path);
+
+    BOOST_CHECK(!config_representation.vault_file_path.empty());
+    std::filesystem::remove(config_representation.vault_file_path);
+    //if tests fail it can leave the dead files there so we must do this
+
+
+    std::filesystem::remove(config_representation.vault_file_path);
+}

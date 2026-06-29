@@ -82,13 +82,15 @@ enum class Defcon {
 struct ConfigRepresentation {
     void parse_command_line_args(std::vector<std::string> args);
 
-    ConfigRepresentation() {
+
+    explicit ConfigRepresentation(std::filesystem::path &vault) {
+        vault_file_path = std::move(vault);
         decrypt = false;
         encryption_mode = EncryptionMode::AES_256_GCM;
     }
 
-    explicit ConfigRepresentation(std::filesystem::path &vault) {
-        vault_file_path = std::move(vault);
+    explicit ConfigRepresentation() {
+        vault_file_path = std::move(get_home_directory());
         decrypt = false;
         encryption_mode = EncryptionMode::AES_256_GCM;
     }
@@ -104,9 +106,10 @@ struct ConfigRepresentation {
     EncryptionMode encryption_mode;
     std::filesystem::path vault_file_path;
     Defcon defcon;
-    
 
 private:
+    std::filesystem::path get_home_directory();
+
     static void help() {
         std::cout <<
                 """This program is meant to be used as a key value vault for secure local password or other short strings."
