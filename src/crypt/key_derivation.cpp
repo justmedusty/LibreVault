@@ -83,7 +83,7 @@ int derive_key(
 
 
     int defcon_boost = 0; //How many rounds to boost from base rounds
-    int memory_divisor = 0; //The defcon level will change the memory and rounds
+    int memory_divisor = 1; //The defcon level will change the memory and rounds
 
     switch (defcon) {
         case Defcon::DEFCON1:
